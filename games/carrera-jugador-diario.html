@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Carrera Jugador Diario — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .cj-area { max-width: 640px; margin: 0 auto; }
+  .career-list { background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; margin-bottom:16px; box-shadow:var(--shadow-card); }
+  .career-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:0.95rem; }
+  .career-item:last-child { border-bottom:none; font-weight:800; }
+  .career-item .crest-mini { width:28px; height:28px; object-fit:contain; }
+  
+  .search-box { display:flex; gap:8px; position:relative; }
+  .search-input { flex:1; padding:14px 16px; border-radius:var(--radius-md); background: var(--surface); border:1px solid var(--border); font-size:1rem; }
+  .search-input:focus { outline:none; border-color:var(--accent-blue); box-shadow:0 0 0 3px rgba(25,118,210,0.15); }
+  .suggestions { position:absolute; top:100%; left:0; right:100px; margin-top:6px; background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); max-height:260px; overflow-y:auto; z-index:30; display:none; box-shadow:var(--shadow-card); }
+  .sug { padding:10px 14px; cursor:pointer; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); font-size:0.85rem; }
+  .sug:hover { background: var(--bg-elev); }
+  
+  .hearts { text-align:center; font-size:1.5rem; margin-bottom:12px; }
+  .heart { display:inline-block; margin:0 3px; transition:transform 0.3s; }
+  .heart.lost { filter:grayscale(1) opacity(0.3); transform:scale(0.8); }
+  
+  #day-info { text-align:center; color:var(--text-secondary); font-size:0.85rem; margin-bottom:14px; }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container cj-area">
+  <div class="game-header">
+    <div class="section__eyebrow">📅 CARRERA JUGADOR DIARIO</div>
+    <h1 class="game-header__title">¿De quién es esta carrera?</h1>
+    <p class="game-header__sub">El mismo jugador para todos. Tienes 3 vidas para adivinarlo.</p>
+  </div>
+  
+  <div id="day-info"></div>
+  <div class="hearts" id="hearts">
+    <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+  </div>
+  
+  <div class="career-list" id="career"></div>
+  
+  <div class="search-box" id="search-container">
+    <input type="text" id="cj-input" class="search-input" placeholder="Escribe un nombre de jugador…" autocomplete="off"/>
+    <button class="btn btn--primary" id="btn-guess">Adivinar</button>
+    <div class="suggestions" id="sug-box"></div>
+  </div>
+  
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/carrera-jugador-diario.js"></script>
+</body></html>

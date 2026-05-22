@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Modo Torneo — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .to-area { max-width: 720px; margin: 0 auto; }
+  .progress { display:flex; gap:6px; margin-bottom:14px; justify-content:center; }
+  .step {
+    flex:1; max-width:80px;
+    padding:8px 4px; text-align:center;
+    background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm);
+    font-size:0.7rem; font-weight:700; color:var(--text-muted);
+  }
+  .step.done { background: var(--bg-win); border-color:var(--accent-green); color:var(--accent-green); }
+  .step.active { background:var(--accent-blue); border-color:var(--accent-blue-2); color:#fff; }
+  .game-host {
+    background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+    padding:18px; box-shadow:var(--shadow-card);
+  }
+  .grid4 { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
+  @media (min-width:600px){ .grid4 { grid-template-columns:repeat(4,1fr); } }
+  .answer-row { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; min-height:48px; margin:10px 0; }
+  .ans-slot { width:38px; height:46px; display:flex; align-items:center; justify-content:center; background: var(--bg-elev); border:2px dashed var(--border-accent); border-radius:8px; font-family:var(--font-main); font-weight:900; font-size:1.2rem; color:var(--accent-blue); }
+  .ans-slot.filled { background: var(--surface); border-style:solid; }
+  .scramble { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; }
+  .letter { width:38px; height:46px; display:flex; align-items:center; justify-content:center; background: var(--surface); border:2px solid var(--border-strong); border-radius:8px; font-family:var(--font-main); font-weight:900; font-size:1.2rem; cursor:pointer; }
+  .letter.placed { opacity:0.3; pointer-events:none; }
+  .ez-frame { width:200px; height:200px; margin:0 auto 12px; background: var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; position:relative; }
+  .ez-frame img { position:absolute; width:500px; height:500px; object-fit:contain; }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container to-area">
+  <div class="game-header">
+    <div class="section__eyebrow">🏆 Torneo</div>
+    <h1 class="game-header__title">5 mini-retos seguidos</h1>
+    <p class="game-header__sub">Suma puntos en cada ronda. Ranking total al final.</p>
+  </div>
+  <div class="chip-row"><div class="chip">Puntos: <strong id="chip-score">0</strong></div></div>
+  <div class="progress" id="progress"></div>
+  <div class="game-host" id="host"></div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+  <script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/torneo.js"></script>
+</body></html>

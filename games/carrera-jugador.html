@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Carrera → Jugador — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .cj-area { max-width: 640px; margin: 0 auto; }
+  .career-list { background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; margin-bottom:16px; box-shadow:var(--shadow-card); }
+  .career-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:0.95rem; }
+  .career-item:last-child { border-bottom:none; font-weight:800; }
+  .career-item .crest-mini { width:28px; height:28px; object-fit:contain; }
+  .search-box { display:flex; gap:8px; position:relative; }
+  .search-input { flex:1; padding:14px 16px; border-radius:var(--radius-md); background: var(--surface); border:1px solid var(--border); font-size:1rem; }
+  .search-input:focus { outline:none; border-color:var(--accent-blue); box-shadow:0 0 0 3px rgba(25,118,210,0.15); }
+  .suggestions { position:absolute; top:100%; left:0; right:0; margin-top:6px; background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); max-height:260px; overflow-y:auto; z-index:30; display:none; box-shadow:var(--shadow-card); }
+  .sug { padding:10px 14px; cursor:pointer; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); font-size:0.85rem; }
+  .sug:hover { background: var(--bg-elev); }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container cj-area">
+  <div class="game-header">
+    <div class="section__eyebrow">🗺️ Carrera → Jugador</div>
+    <h1 class="game-header__title">¿De quién es esta carrera?</h1>
+    <p class="game-header__sub">Mira los clubes en orden y adivina el jugador.</p>
+  </div>
+  <div class="chip-row">
+    <div class="chip">Aciertos: <strong id="chip-wins">0</strong></div>
+    <div class="chip">Racha: <strong id="chip-streak">0</strong></div>
+  </div>
+  <div class="career-list" id="career"></div>
+  <div class="search-box">
+    <input type="text" id="cj-input" class="search-input" placeholder="Escribe un nombre…" autocomplete="off"/>
+    <button class="btn btn--primary" id="btn-guess">Adivinar</button>
+    <div class="suggestions" id="sug-box"></div>
+  </div>
+  <div style="margin-top:10px; text-align:center;">
+    <button class="btn btn--outline" id="btn-skip" style="padding:6px 14px; font-size:0.85rem;">Saltar</button>
+  </div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+  <script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/carrera-jugador.js"></script>
+</body></html>

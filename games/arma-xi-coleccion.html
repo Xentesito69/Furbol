@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Arma tu XI · Colección · Furbol</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { background:var(--bg); color:var(--text); font-family:var(--font-main); }
+
+    .back-btn { display:inline-flex; align-items:center; gap:6px; color:var(--text-secondary); text-decoration:none; font-size:0.88rem; padding:16px; }
+    .page-header { text-align:center; padding:0 16px 16px; }
+    .page-header h1 { font-size:1.6rem; font-weight:800; margin:0 0 4px; }
+    .page-header p { color:var(--text-secondary); font-size:0.85rem; margin:0; }
+
+    .unlock-msg { text-align:center; padding:60px 16px; color:var(--text-secondary); }
+    .unlock-msg a { color:var(--accent-blue,#3b82f6); font-weight:700; }
+
+    /* Layout: pitch left, bench right */
+    .xi-layout { display:grid; grid-template-columns:1fr 320px; gap:16px; max-width:1000px; margin:0 auto; padding:0 16px 32px; }
+    @media(max-width:750px){ .xi-layout { grid-template-columns:1fr; } }
+
+    /* Pitch */
+    .pitch-wrap { position:relative; background:linear-gradient(180deg,#1a6b2f,#2d9b4a,#1a6b2f); border-radius:16px; padding:16px; min-height:480px; box-shadow:0 4px 24px rgba(0,0,0,0.4); }
+    .pitch-lines { position:absolute; inset:0; pointer-events:none; opacity:0.15; }
+    .line { display:flex; justify-content:center; gap:12px; margin-bottom:14px; }
+    .slot { width:80px; min-height:80px; border:2px dashed rgba(255,255,255,0.4); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s; position:relative; background:rgba(255,255,255,0.05); }
+    .slot:hover, .slot.over { border-color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.15); }
+    .slot.filled { border-style:solid; border-color:rgba(255,255,255,0.6); background:rgba(0,0,0,0.3); }
+    .slot .pos-label { color:rgba(255,255,255,0.6); font-size:0.65rem; font-weight:700; letter-spacing:0.05em; }
+    .slot .photo { width:56px; height:56px; object-fit:cover; border-radius:50%; border:2px solid rgba(255,255,255,0.8); }
+    .slot .name { color:#fff; font-size:0.6rem; font-weight:700; text-align:center; margin-top:3px; max-width:76px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
+    .slot .remove { position:absolute; top:2px; right:2px; background:rgba(220,50,50,0.8); border:none; color:#fff; border-radius:50%; width:18px; height:18px; font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+    /* Bench */
+    .bench-wrap { background:var(--surface); border-radius:16px; border:1px solid var(--border); padding:12px; display:flex; flex-direction:column; gap:8px; max-height:600px; overflow-y:auto; }
+    .bench-title { font-weight:700; font-size:0.9rem; color:var(--text-secondary); padding-bottom:8px; border-bottom:1px solid var(--border); }
+    .bench-empty { text-align:center; color:var(--text-muted); font-size:0.82rem; padding:20px; }
+    .bench-card { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; border:1.5px solid var(--border); cursor:pointer; transition:all 0.15s; user-select:none; }
+    .bench-card:hover:not(.used) { border-color:var(--accent-blue,#3b82f6); background:var(--surface-hover,rgba(59,130,246,0.08)); }
+    .bench-card.used { opacity:0.4; cursor:default; }
+    .bench-card .photo { width:44px; height:44px; object-fit:cover; border-radius:50%; border:2px solid var(--border); flex-shrink:0; }
+    .bench-card .bc-info { flex:1; min-width:0; }
+    .bench-card .nm { font-weight:700; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .bench-card .meta { font-size:0.7rem; color:var(--text-secondary); }
+    .badge-pos { border-radius:4px; font-size:0.62rem; font-weight:800; padding:2px 5px; flex-shrink:0; }
+    .badge-pos.GK { background:#6366f1; color:#fff; }
+    .badge-pos.DEF { background:#22c55e; color:#fff; }
+    .badge-pos.MID { background:#f59e0b; color:#000; }
+    .badge-pos.FWD { background:#ef4444; color:#fff; }
+
+    /* Action photo style: used in slots */
+    .slot .photo.action { border-radius:8px; width:60px; height:72px; object-fit:cover; object-position:top; }
+
+    /* Controls */
+    .controls { display:flex; gap:10px; justify-content:center; padding:0 16px 16px; flex-wrap:wrap; }
+    .summary { max-width:600px; margin:0 auto; padding:16px; background:var(--surface); border-radius:14px; border:1px solid var(--border); text-align:center; display:none; }
+    .summary.show { display:block; }
+    .summary .total { font-size:2rem; font-weight:800; color:var(--gold,#f5c842); }
+
+    .pos-filter { display:flex; gap:6px; flex-wrap:wrap; padding:0 16px 10px; justify-content:center; }
+    .pf-btn { padding:4px 12px; border-radius:14px; border:1.5px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:0.75rem; cursor:pointer; font-family:var(--font-main); }
+    .pf-btn.active { background:var(--accent-blue,#3b82f6); color:#fff; border-color:var(--accent-blue,#3b82f6); font-weight:700; }
+  </style>
+</head>
+<body>
+  <a class="back-btn" href="../index.html">← Inicio</a>
+  <div class="page-header">
+    <h1>⚽ Arma tu XI (Colección)</h1>
+    <p>Usa solo los jugadores que has desbloqueado en el álbum</p>
+  </div>
+
+  <div id="unlock-msg" class="unlock-msg" style="display:none">
+    <p style="font-size:2rem">🃏</p>
+    <p>Todavía no tienes jugadores desbloqueados.<br>
+    <a href="album.html">Abre sobres en el Álbum</a> para conseguirlos.</p>
+  </div>
+
+  <div id="game-area">
+    <div class="controls">
+      <button class="btn btn--outline" onclick="newGame()">🔄 Resetear</button>
+      <button class="btn btn--primary" onclick="finish()">✅ Ver XI</button>
+    </div>
+
+    <div class="pos-filter">
+      <button class="pf-btn active" onclick="filterPos('ALL', this)">Todos</button>
+      <button class="pf-btn GK" onclick="filterPos('GK', this)">Porteros</button>
+      <button class="pf-btn DEF" onclick="filterPos('DEF', this)">Defensas</button>
+      <button class="pf-btn MID" onclick="filterPos('MID', this)">Centrocampistas</button>
+      <button class="pf-btn FWD" onclick="filterPos('FWD', this)">Delanteros</button>
+    </div>
+
+    <div class="xi-layout">
+      <!-- Pitch -->
+      <div class="pitch-wrap">
+        <div id="pitch">
+          <div class="line" data-pos="GK"  data-count="1"></div>
+          <div class="line" data-pos="DEF" data-count="4"></div>
+          <div class="line" data-pos="MID" data-count="3"></div>
+          <div class="line" data-pos="FWD" data-count="3"></div>
+        </div>
+      </div>
+
+      <!-- Bench (unlocked players) -->
+      <div class="bench-wrap">
+        <div class="bench-title">Tu colección</div>
+        <div id="bench"></div>
+      </div>
+    </div>
+
+    <div class="summary" id="summary"></div>
+  </div>
+
+  <script src="../data/players.js"></script>
+  <script src="../js/db.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/album.js"></script>
+  <script src="../js/games/arma-xi-coleccion.js"></script>
+</body>
+</html>

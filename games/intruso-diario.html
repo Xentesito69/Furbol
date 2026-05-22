@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Intruso Diario — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .int-area { max-width: 720px; margin: 0 auto; }
+  .hint-box { background: var(--bg-elev); border:1px solid var(--border-accent); padding:12px 16px; border-radius:var(--radius-md); text-align:center; margin-bottom:16px; font-weight:600; color:var(--text-primary); }
+  .grid4 { display:grid; grid-template-columns: repeat(2,1fr); gap:10px; margin-bottom:16px; }
+  @media (min-width:600px) { .grid4 { grid-template-columns: repeat(4,1fr); } }
+  #day-info { text-align:center; color:var(--text-secondary); font-size:0.85rem; margin-bottom:14px; }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container int-area">
+  <div class="game-header">
+    <div class="section__eyebrow">📅 INTRUSO DIARIO</div>
+    <h1 class="game-header__title">El Intruso del día</h1>
+    <p class="game-header__sub">La misma combinación para todos. Encuentra al jugador que no encaja.</p>
+  </div>
+  
+  <div id="day-info"></div>
+  
+  <div class="hint-box" id="hint">Pista: …</div>
+  <div class="grid4" id="grid"></div>
+  
+  <div class="verdict" id="verdict"></div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/intruso-diario.js"></script>
+</body></html>

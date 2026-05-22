@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>¿De qué club salió? — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .pc-area { max-width: 640px; margin: 0 auto; }
+  .pc-card { background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px; text-align:center; box-shadow:var(--shadow-card); margin-bottom:18px; }
+  .pc-card img.photo { width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--border-accent); margin-bottom:8px; }
+  .pc-card .pname { font-family:var(--font-main); font-weight:800; font-size:1.4rem; }
+  .pc-card .pmeta { color:var(--text-secondary); font-size:0.9rem; margin-top:4px; }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container pc-area">
+  <div class="game-header">
+    <div class="section__eyebrow">🌱 Primer Club</div>
+    <h1 class="game-header__title">¿Dónde empezó?</h1>
+    <p class="game-header__sub">Elige el primer club profesional del jugador.</p>
+  </div>
+  <div class="chip-row">
+    <div class="chip">Racha: <strong id="chip-streak">0</strong></div>
+    <div class="chip">Mejor: <strong id="chip-best">0</strong></div>
+  </div>
+  <div class="pc-card" id="card"></div>
+  <div class="mc-grid" id="options"></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+  <script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/primer-club.js"></script>
+</body></html>

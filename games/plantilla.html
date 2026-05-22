@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Plantilla en 60s — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .pl-area { max-width: 720px; margin: 0 auto; }
+  .pl-hero { text-align:center; padding:24px 16px; background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); margin-bottom:14px; box-shadow:var(--shadow-card); }
+  .pl-hero img.crest { width:90px; height:90px; object-fit:contain; margin-bottom:8px; }
+  .pl-hero .club { font-family:var(--font-main); font-weight:800; font-size:1.4rem; }
+  .pl-hero .timer { margin-top:10px; font-family:var(--font-main); font-weight:800; font-size:1.4rem; color:var(--accent-blue); }
+  .timer.warning { color:var(--accent-gold); } .timer.danger { color:var(--accent-red); animation:pulse 0.8s infinite; }
+  @keyframes pulse { 50%{opacity:0.4;} }
+  .pl-input { display:flex; gap:8px; margin-bottom:14px; }
+  .pl-input input { flex:1; padding:12px 16px; border:1px solid var(--border); border-radius:var(--radius-md); font-size:1rem; }
+  .pl-input input:focus { outline:none; border-color:var(--accent-blue); box-shadow: 0 0 0 3px rgba(25,118,210,0.15); }
+  .search-wrapper { position: relative; flex: 1; }
+  .search-wrapper input { width: 100%; box-sizing: border-box; }
+  .suggestions-box {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--surface); border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    box-shadow: var(--shadow-card);
+    max-height: 200px; overflow-y: auto; z-index: 10;
+    display: none; text-align: left;
+  }
+  .sug { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; border-bottom: 1px solid var(--bg-elev); }
+  .sug:last-child { border-bottom: none; }
+  .sug:hover { background: var(--bg-elev); }
+  .found-list { display:flex; flex-direction:column; gap:6px; max-height:340px; overflow-y:auto; }
+  .found-item { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background: var(--bg-win); border:1px solid #b4dcbc; border-radius:var(--radius-sm); font-size:0.88rem; animation:rowIn 0.3s; }
+  @keyframes rowIn { from{opacity:0;transform:translateY(-4px);} to{opacity:1;} }
+  .score-line { display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.9rem; }
+  .missed { margin-top:14px; padding:12px; background:var(--bg-elev); border-radius:var(--radius-md); max-height:240px; overflow-y:auto; }
+  .missed-item { padding:4px 0; font-size:0.85rem; color:var(--text-secondary); }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container pl-area">
+  <div class="game-header">
+    <div class="section__eyebrow">⏱️ Plantilla 60s</div>
+    <h1 class="game-header__title">Nombra la plantilla</h1>
+    <p class="game-header__sub">60 segundos. ¿Cuántos jugadores de este club puedes nombrar?</p>
+  </div>
+  <div class="pl-hero">
+    <img class="crest" id="club-crest" src="" alt=""/>
+    <div class="club" id="club-name">—</div>
+    <div class="timer" id="timer">60</div>
+  </div>
+  <div class="score-line">
+    <div>Encontrados: <strong id="found-count">0</strong> / <span id="total-count">0</span></div>
+    <button class="btn btn--outline" id="btn-skip" style="padding:6px 12px; font-size:0.8rem;">Cambiar club</button>
+  </div>
+  <div class="pl-input">
+    <div class="search-wrapper">
+      <input id="pl-input" type="text" placeholder="Escribe un apellido…" autocomplete="off"/>
+      <div class="suggestions-box" id="sug-box"></div>
+    </div>
+  </div>
+  <div class="found-list" id="found-list"></div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+  <script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/plantilla.js"></script>
+</body></html>

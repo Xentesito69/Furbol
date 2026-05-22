@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wordle Futbolero — Furbol</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .wordle-area { max-width: 520px; margin: 0 auto; }
+
+    .word-board {
+      display: grid;
+      gap: 6px;
+      margin: 22px auto;
+      justify-content: center;
+    }
+    .word-row { display: flex; gap: 6px; justify-content: center; }
+    .word-tile {
+      width: 52px; height: 52px;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-main);
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: var(--bg-card);
+      transition: transform 0.25s, background 0.4s, border-color 0.4s;
+    }
+    .word-tile.filled { border-color: var(--text-secondary); animation: pop 0.2s ease; }
+    .word-tile.correct { background: #2e7d32; border-color: #1b5e20; color: #fff; }
+    .word-tile.present { background: #f9a825; border-color: #ef6c00; color: #1a1a1a; }
+    .word-tile.absent  { background: #6b7280; border-color: #4b5563; color: #fff; }
+    @keyframes pop { 50% { transform: scale(1.08); } }
+
+    .word-hint {
+      text-align: center;
+      padding: 14px;
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .word-hint .pname { display:none; }
+    .word-hint .clue { font-size: 0.9rem; color: var(--text-secondary); }
+
+    .keyboard {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: 520px;
+      margin: 16px auto 0;
+    }
+    .kb-row { display: flex; gap: 4px; justify-content: center; }
+    .key {
+      flex: 1;
+      max-width: 42px;
+      height: 50px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-main); font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .key.wide { max-width: 80px; font-size: 0.78rem; }
+    .key:hover { background: var(--bg-card-hover); }
+    .key.correct { background: #2e7d32; border-color: #1b5e20; color:#fff; }
+    .key.present { background: #f9a825; border-color: #ef6c00; color:#1a1a1a; }
+    .key.absent  { background: #6b7280; border-color: #4b5563; color:#fff; }
+
+    .end-screen {
+      display: none;
+      text-align: center;
+      padding: 28px 18px;
+      border-radius: var(--radius-lg);
+      margin-top: 20px;
+    }
+    .end-screen.win  { background: #f3fbf5; border: 1px solid var(--accent-green); }
+    .end-screen.lose { background: #fef5f5; border: 1px solid var(--accent-red); }
+    .end-screen h2 { font-size: 1.6rem; margin-bottom: 8px; }
+    .end-screen.win h2 { color: var(--accent-green); }
+    .end-screen.lose h2 { color: var(--accent-red); }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 999px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);
+    }
+    .chip strong { color: var(--text-primary); }
+
+    @media (max-width: 480px) {
+      .word-tile { width: 42px; height: 42px; font-size: 1.2rem; }
+      .key { max-width: 32px; height: 44px; font-size: 0.85rem; }
+      .key.wide { max-width: 60px; font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar" id="navbar">
+  <div class="container navbar__inner">
+    <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt="Furbol"/>Furbol</a>
+    <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">? Volver</a>
+  </div>
+</header>
+
+<main class="game-page">
+  <div class="container wordle-area">
+
+    <div class="game-header">
+      <div class="section__eyebrow">?? Juego #3</div>
+      <h1 class="game-header__title">Wordle Futbolero</h1>
+      <p class="game-header__sub">Adivina el apellido del jugador en 6 intentos.</p>
+    </div>
+
+    <div style="display:flex; justify-content:center; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+      <div class="chip">Racha: <strong id="chip-streak">0</strong></div>
+      <div class="chip">Ganadas: <strong id="chip-wins">0</strong></div>
+      <button class="btn btn--outline" id="btn-new" style="padding:6px 12px; font-size:0.8rem;">? Nueva palabra</button>
+    </div>
+
+    <!-- Info: solo número de letras (sin pista de jugador) -->
+    <div class="word-hint">
+      <div class="clue" id="hint-text">…</div>
+    </div>
+
+    <!-- Tablero -->
+    <div class="word-board" id="board"></div>
+
+    <!-- Pantallas -->
+    <div class="end-screen win" id="win-screen">
+      <h2>¡Ganaste! ??</h2>
+      <p id="win-text" style="color:var(--text-secondary);"></p>
+      <button class="btn btn--primary" style="margin-top:14px;" onclick="initWordle()">Otra palabra</button>
+    </div>
+    <div class="end-screen lose" id="lose-screen">
+      <h2>Fin del juego</h2>
+      <p id="lose-text" style="color:var(--text-secondary);"></p>
+      <button class="btn btn--primary" style="margin-top:14px;" onclick="initWordle()">Volver a intentar</button>
+    </div>
+
+    <!-- Teclado -->
+    <div class="keyboard" id="keyboard"></div>
+
+  </div>
+</main>
+
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/album.js"></script>
+<script src="../js/games/wordle.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pásamela — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .pa-area { max-width: 620px; margin: 0 auto; }
+  .category-box {
+    background: var(--surface); border:2px solid var(--accent-blue); border-radius:var(--radius-lg);
+    padding:18px; text-align:center; margin-bottom:14px; box-shadow:var(--shadow-card);
+  }
+  .cat-label { color:var(--text-muted); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; }
+  .cat-value { font-family:var(--font-main); font-weight:900; font-size:1.4rem; color:var(--accent-blue-2); }
+  .turn-line { text-align:center; margin-bottom:12px; font-family:var(--font-main); font-weight:800; font-size:1.1rem; }
+  .input-row { display:flex; gap:8px; margin-bottom:12px; }
+  .input-row input { flex:1; padding:12px 16px; border:1px solid var(--border); border-radius:var(--radius-md); font-size:1rem; }
+  .input-row input:focus { outline:none; border-color:var(--accent-blue); }
+  .said-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:6px; margin-top:14px; }
+  .said-pill { background: var(--bg-elev); border:1px solid var(--border-accent); border-radius:999px; padding:6px 10px; font-size:0.78rem; text-align:center; }
+  .setup { background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; text-align:center; box-shadow:var(--shadow-card); }
+  .setup input { padding:10px 14px; border:1px solid var(--border); border-radius:var(--radius-md); font-size:1rem; width:180px; margin:4px; }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container pa-area">
+  <div class="game-header">
+    <div class="section__eyebrow">🔄 Pásamela</div>
+    <h1 class="game-header__title">Cadena sin repetir</h1>
+    <p class="game-header__sub">Cada turno nombras un jugador que encaje. El que falla, pierde.</p>
+  </div>
+
+  <div class="setup" id="setup">
+    <h3 style="font-family:var(--font-main); margin-bottom:12px;">Jugadores en la mesa</h3>
+    <div id="player-inputs"><input class="p-input" placeholder="Nombre 1" value="Tú"/></div>
+    <div style="margin:10px 0;">
+      <button class="btn btn--outline" id="btn-add" style="padding:8px 14px; font-size:0.85rem;">+ Añadir jugador</button>
+    </div>
+    <button class="btn btn--primary" id="btn-start">▶ Empezar</button>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="category-box">
+      <div class="cat-label">Categoría</div>
+      <div class="cat-value" id="cat">…</div>
+    </div>
+    <div class="turn-line" id="turn-line">Turno de…</div>
+    <div class="input-row">
+      <input type="text" id="pa-input" placeholder="Escribe un apellido…" autocomplete="off"/>
+      <button class="btn btn--primary" id="btn-go">Decir</button>
+    </div>
+    <div class="chip-row">
+      <button class="btn btn--outline" id="btn-pass" style="padding:6px 14px; font-size:0.85rem;">No sé (pierdo)</button>
+    </div>
+    <div class="said-list" id="said-list"></div>
+    <div class="end-overlay-common" id="end"></div>
+  </div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/pasamela.js"></script>
+</body></html>

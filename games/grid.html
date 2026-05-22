@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Grid — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .gr-area { max-width: 760px; margin: 0 auto; }
+  .level-bar { display:flex; gap:8px; justify-content:center; margin-bottom:14px; flex-wrap:wrap; }
+  .level-btn { padding:8px 16px; border-radius:999px; background: var(--surface); border:1px solid var(--border); cursor:pointer; font-weight:700; font-size:0.85rem; color:var(--text-secondary); }
+  .level-btn.active { background:var(--accent-blue); color:#fff; border-color:var(--accent-blue-2); }
+  .grid-wrap {
+    display:grid;
+    grid-template-columns: 100px repeat(3, 1fr);
+    gap: 6px;
+    margin: 0 auto 14px;
+    max-width: 540px;
+  }
+  .grid-head {
+    background: var(--bg-elev); border:1px solid var(--border-accent);
+    border-radius: var(--radius-sm);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    padding:6px; font-size:0.78rem; font-weight:700; min-height: 70px;
+  }
+  .grid-head img.crest { width:36px; height:36px; object-fit:contain; }
+  .grid-cell {
+    background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-sm);
+    aspect-ratio: 1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .grid-cell:hover:not(.locked):not(.surrender) { background:var(--bg-elev); border-color:var(--accent-blue); }
+  .grid-cell.locked { cursor:default; }
+  .grid-cell.surrender { background:var(--bg-lose); border-color:var(--accent-red); cursor:default; }
+  .grid-cell.surrender img.face { opacity:0.85; }
+  .grid-cell.surrender .surr-name { position:absolute; bottom:2px; font-size:0.55rem; color:var(--accent-red); font-weight:700; text-align:center; width:100%; }
+  .grid-cell img.face { width: 80%; height: 80%; border-radius: 50%; object-fit: cover; }
+  .grid-cell .mark {
+    font-family: var(--font-main); font-weight: 900; font-size: 3rem;
+  }
+  .mark.p1 { color: var(--accent-blue); }
+  .mark.p2 { color: var(--accent-red); }
+  .turn-info { text-align:center; margin-bottom:14px; font-family:var(--font-main); font-weight:800; font-size:1.1rem; }
+  .turn-info.p1 { color: var(--accent-blue); }
+  .turn-info.p2 { color: var(--accent-red); }
+  .picker-modal {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:50;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .picker-modal.show { display:flex; }
+  .picker-card {
+    background:var(--surface); border-radius:var(--radius-lg); padding:18px;
+    max-width: 480px; width:100%; max-height: 80vh; overflow:auto;
+  }
+  .picker-card h3 { margin-bottom: 10px; font-family:var(--font-main); }
+  .picker-input { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:var(--radius-md); font-size:1rem; margin-bottom: 10px; }
+  .picker-list { display:flex; flex-direction:column; gap:4px; max-height:300px; overflow:auto; }
+  .picker-item { padding:8px 12px; cursor:pointer; display:flex; align-items:center; gap:8px; border-radius:var(--radius-sm); }
+  .picker-item:hover { background:var(--bg-elev); }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container gr-area">
+  <div class="game-header">
+    <div class="section__eyebrow">🎰 Grid</div>
+    <h1 class="game-header__title">3 en raya futbolero</h1>
+    <p class="game-header__sub">Cada casilla pide un jugador que cumpla fila + columna.</p>
+  </div>
+  <div class="level-bar">
+    <button class="level-btn active" data-mode="solo">Solo · 9 aciertos</button>
+    <button class="level-btn" data-mode="vs">1v1 · Tres en raya</button>
+  </div>
+  <div class="chip-row">
+    <button class="btn btn--outline" id="btn-new" style="padding:6px 14px; font-size:0.85rem;">↻ Nueva grid</button>
+    <button class="btn btn--outline" id="btn-giveup" style="padding:6px 14px; font-size:0.85rem; color:var(--accent-red); border-color:var(--accent-red);">🏳️ Rendirse</button>
+    <div class="chip">Aciertos: <strong id="chip-filled">0</strong>/9</div>
+  </div>
+  <div class="turn-info" id="turn-info" style="display:none;"></div>
+  <div class="grid-wrap" id="grid"></div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<div class="picker-modal" id="picker-modal">
+  <div class="picker-card">
+    <h3 id="picker-title">Elige jugador</h3>
+    <input type="text" id="picker-input" class="picker-input" placeholder="Buscar..." autocomplete="off"/>
+    <div class="picker-list" id="picker-list"></div>
+    <div style="margin-top:12px; text-align:right;">
+      <button class="btn btn--outline" onclick="closePicker()">Cancelar</button>
+    </div>
+  </div>
+</div>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/grid.js"></script>
+</body></html>

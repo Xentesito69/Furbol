@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Conexiones Diario — Furbol</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .conex-area { max-width: 760px; margin: 0 auto; }
+
+    .conex-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .conex-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: var(--shadow-card);
+      min-height: 92px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      user-select: none;
+    }
+    .conex-tile img.photo {
+      width: 42px; height: 42px;
+      border-radius: 50%; object-fit: cover;
+      border: 1px solid var(--border);
+    }
+    .conex-tile.selected {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue-2);
+      transform: scale(1.04);
+    }
+    .conex-tile.solved-0 { background: #ffe0a1; border-color: #f9a825; color: #5d3a00; }
+    .conex-tile.solved-1 { background: #b8e0c2; border-color: #2e7d32; color: #1b3d24; }
+    .conex-tile.solved-2 { background: #b9d2f5; border-color: var(--accent-blue); color: #0a2540; }
+    .conex-tile.solved-3 { background: #e5c6f5; border-color: #6a1b9a; color: #3a0d52; }
+
+    .solved-row {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 8px;
+      text-align: center;
+      font-weight: 700;
+      font-family: var(--font-main);
+      animation: pop 0.4s ease;
+    }
+    .solved-row.cat-0 { background: #ffe0a1; color: #5d3a00; }
+    .solved-row.cat-1 { background: #b8e0c2; color: #1b3d24; }
+    .solved-row.cat-2 { background: #b9d2f5; color: #0a2540; }
+    .solved-row.cat-3 { background: #e5c6f5; color: #3a0d52; }
+    .solved-row .members { font-weight: 500; font-size: 0.82rem; margin-top: 4px; }
+    @keyframes pop { 0%{transform:scale(0.9);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+
+    .controls {
+      display: flex; gap: 10px; justify-content: center; margin-bottom: 18px;
+    }
+    .hearts { display: flex; gap: 4px; justify-content: center; margin-bottom: 14px; font-size: 1.2rem; }
+    .heart.lost { filter: grayscale(1) opacity(0.3); }
+
+    .chip-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); }
+    .chip strong { color: var(--accent-blue); font-family: var(--font-main); font-weight: 800; }
+
+    .end-overlay {
+      display: none; text-align: center; padding: 26px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); margin-top: 14px;
+      box-shadow: var(--shadow-card);
+    }
+    .end-overlay.win  { border-color: var(--accent-green); background: #f3fbf5; }
+    .end-overlay.fail { border-color: var(--accent-red);   background: #fef5f5; }
+    .end-overlay h2 { margin-bottom: 6px; }
+    .end-overlay.win h2 { color: var(--accent-green); }
+    .end-overlay.fail h2 { color: var(--accent-red); }
+
+    .verdict {
+      display: none; text-align: center; padding: 10px;
+      border-radius: var(--radius-md); font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .verdict.right { background: var(--bg-win); color: var(--accent-green); border: 1px solid #b4dcbc; }
+    .verdict.wrong { background: var(--bg-lose); color: var(--accent-red);   border: 1px solid #f0b8b8; }
+
+    #day-info { text-align:center; color:var(--text-secondary); font-size:0.85rem; margin-bottom:14px; }
+
+    @media (max-width: 600px) {
+      .conex-grid { gap: 6px; }
+      .conex-tile { font-size: 0.68rem; min-height: 76px; padding: 8px 4px; }
+      .conex-tile img.photo { width: 32px; height: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar" id="navbar">
+  <div class="container navbar__inner">
+    <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt="Furbol"/>Furbol</a>
+    <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+  </div>
+</header>
+
+<main class="game-page">
+  <div class="container conex-area">
+    <div class="game-header">
+      <div class="section__eyebrow">📅 CONEXIONES DIARIO</div>
+      <h1 class="game-header__title">Conexiones del día</h1>
+      <p class="game-header__sub">Agrupa los 16 jugadores en 4 grupos de 4. El mismo reto para todos.</p>
+    </div>
+
+    <div id="day-info"></div>
+
+    <div class="hearts" id="hearts">
+      <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+    </div>
+
+    <div id="solved-list"></div>
+
+    <div class="verdict" id="verdict"></div>
+
+    <div class="conex-grid" id="grid"></div>
+
+    <div class="controls" id="controls">
+      <button class="btn btn--outline" id="btn-shuffle">🔀 Mezclar</button>
+      <button class="btn btn--outline" id="btn-clear">Limpiar selección</button>
+      <button class="btn btn--primary" id="btn-submit">Enviar</button>
+    </div>
+
+    <div class="end-overlay" id="end-overlay"></div>
+  </div>
+</main>
+
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/conexiones-diario.js"></script>
+</body>
+</html>

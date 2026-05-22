@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sudoku Futbolero — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .sd-area { max-width: 720px; margin: 0 auto; }
+  .level-bar { display:flex; gap:8px; justify-content:center; margin-bottom:14px; flex-wrap:wrap; }
+  .level-btn { padding:8px 16px; border-radius:999px; background: var(--surface); border:1px solid var(--border); cursor:pointer; font-weight:700; font-size:0.85rem; color:var(--text-secondary); }
+  .level-btn.active { background:var(--accent-blue); color:#fff; border-color:var(--accent-blue-2); }
+  .board {
+    display:grid;
+    background: var(--surface);
+    border: 3px solid var(--text-primary);
+    border-radius: 12px;
+    padding: 0;
+    margin: 0 auto 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    width: fit-content;
+    overflow: hidden;
+  }
+  .cell {
+    background: var(--surface);
+    box-sizing: border-box;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .cell.given { background:#f1f5fa; cursor: default; }
+  .cell.selected { background: #dceaf8 !important; }
+  .cell.error { background: #ffebeb !important; }
+  .cell img { 
+    width: 76%; height: 76%; 
+    object-fit: cover; object-position: top;
+    border-radius: 50%; 
+    background: #eef2f6;
+    border: 2px solid rgba(0,0,0,0.05);
+  }
+  .picker {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+  .pick {
+    background: var(--surface); border:1px solid var(--border); border-radius:8px;
+    aspect-ratio:1; cursor:pointer; padding: 4px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pick:hover { background: var(--bg-elev); border-color: var(--accent-blue); transform:translateY(-2px); }
+  .pick img { 
+    width:86%; height:86%; 
+    object-fit:cover; object-position: top;
+    border-radius:50%; 
+    background: #eef2f6;
+    border: 2px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container sd-area">
+  <div class="game-header">
+    <div class="section__eyebrow">🧩 Sudoku Futbolero</div>
+    <h1 class="game-header__title">Sudoku con caras</h1>
+    <p class="game-header__sub">Cada fila, columna y bloque debe tener cada jugador exactamente una vez.</p>
+  </div>
+  <div class="level-bar">
+    <button class="level-btn active" data-l="easy">Fácil · 4×4</button>
+    <button class="level-btn" data-l="medium">Medio · 6×6</button>
+    <button class="level-btn" data-l="hard">Difícil · 9×9</button>
+  </div>
+  <div class="chip-row">
+    <button class="btn btn--outline" id="btn-new" style="padding:6px 14px; font-size:0.85rem;">↻ Nuevo</button>
+    <button class="btn btn--outline" id="btn-check" style="padding:6px 14px; font-size:0.85rem;">✓ Comprobar</button>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="picker" id="picker"></div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+  <script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/sudoku.js"></script>
+</body></html>

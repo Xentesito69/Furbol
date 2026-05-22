@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Escudo Zoom Diario — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .ez-area { max-width: 620px; margin: 0 auto; text-align: center; }
+  .ez-frame {
+    width: 240px; height: 240px;
+    margin: 0 auto 16px;
+    background: var(--surface); border:2px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden; position: relative;
+    box-shadow: var(--shadow-card);
+  }
+  .ez-frame img {
+    position:absolute; width:600px; height:600px; object-fit:contain;
+    transition: transform 0.5s ease, left 0.5s ease, top 0.5s ease;
+  }
+  .search-container {
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 16px;
+  }
+  .search-input {
+    flex: 1; max-width: 300px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: inherit; font-size: 1rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--accent-blue); }
+  
+  .search-wrapper { position: relative; flex: 1; max-width: 300px; text-align: left; }
+  .search-input { width: 100%; box-sizing: border-box; }
+  .suggestions-box {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); max-height: 200px;
+    overflow-y: auto; z-index: 10; text-align: left;
+    box-shadow: var(--shadow-card); margin-top: 4px;
+    display: none;
+  }
+  .suggestion-item {
+    padding: 10px 14px; cursor: pointer;
+    border-bottom: 1px solid var(--border-light, #eee);
+    color: var(--text-primary); font-size: 0.95rem;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover { background: var(--bg-main, var(--bg-elev)); color: var(--accent-blue); }
+
+  #day-info { text-align:center; color:var(--text-secondary); font-size:0.85rem; margin-bottom:14px; }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container ez-area">
+  <div class="game-header">
+    <div class="section__eyebrow">📅 ESCUDO ZOOM DIARIO</div>
+    <h1 class="game-header__title">¿Qué club es?</h1>
+    <p class="game-header__sub">Te enseñamos un trozo del escudo. Solo tienes 1 intento. Busca el club.</p>
+  </div>
+  
+  <div id="day-info"></div>
+
+  <div class="ez-frame"><img id="ez-img" alt=""></div>
+  
+  <div class="search-container" id="search-box">
+    <div class="search-wrapper">
+      <input type="text" id="guess-input" placeholder="Nombre del club..." class="search-input" autocomplete="off" />
+      <div id="suggestions" class="suggestions-box"></div>
+    </div>
+    <button class="btn btn--primary" id="btn-guess">Enviar</button>
+  </div>
+  
+  <div class="verdict" id="verdict"></div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/escudo-zoom-diario.js"></script>
+</body></html>

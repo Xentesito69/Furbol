@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Anagrama Diario — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .ana-area { max-width: 540px; margin: 0 auto; text-align: center; }
+  .scramble { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin: 20px 0; min-height:60px; }
+  .letter {
+    width:48px; height:54px;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--surface); border:2px solid var(--border-strong);
+    border-radius:var(--radius-md); font-family:var(--font-main); font-weight:900; font-size:1.5rem;
+    cursor:pointer; transition:all 0.15s;
+    box-shadow:var(--shadow-card);
+    user-select:none;
+  }
+  .letter:hover { transform:translateY(-3px); border-color:var(--accent-blue); }
+  .letter.placed { opacity:0.3; pointer-events:none; }
+  .answer-row { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; min-height:54px; margin-bottom:14px; }
+  .ans-slot {
+    width:48px; height:54px;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--bg-elev); border:2px dashed var(--border-accent);
+    border-radius:var(--radius-md); font-family:var(--font-main); font-weight:900; font-size:1.5rem;
+    color:var(--accent-blue);
+    cursor:pointer;
+  }
+  .ans-slot.filled { background: var(--surface); border-style:solid; }
+  .hint-box { font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px; }
+  
+  .hearts { text-align:center; font-size:1.5rem; margin-bottom:12px; }
+  .heart { display:inline-block; margin:0 3px; transition:transform 0.3s; }
+  .heart.lost { filter:grayscale(1) opacity(0.3); transform:scale(0.8); }
+  #day-info { text-align:center; color:var(--text-secondary); font-size:0.85rem; margin-bottom:14px; }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container ana-area">
+  <div class="game-header">
+    <div class="section__eyebrow">📅 ANAGRAMA DIARIO</div>
+    <h1 class="game-header__title">Ordena las letras</h1>
+    <p class="game-header__sub">Reconstruye el apellido del jugador. El mismo reto para todos.</p>
+  </div>
+  
+  <div id="day-info"></div>
+  <div class="hearts" id="hearts">
+    <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+  </div>
+  
+  <div class="hint-box" id="hint">Pista: …</div>
+  <div class="answer-row" id="answer"></div>
+  <div class="scramble" id="scramble"></div>
+  <div style="display:flex; gap:8px; justify-content:center; margin-top:10px;" id="action-buttons">
+    <button class="btn btn--outline" id="btn-clear">Borrar</button>
+    <button class="btn btn--primary" id="btn-check">Comprobar</button>
+  </div>
+  <div class="verdict" id="verdict"></div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/anagrama-diario.js"></script>
+</body></html>

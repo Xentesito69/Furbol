@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>¿Quién vale más? — Furbol</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .higher-area { max-width: 880px; margin: 0 auto; }
+
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .lives { display: flex; gap: 4px; font-size: 1.3rem; }
+    .life.lost { filter: grayscale(1) opacity(0.3); }
+
+    .duel {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .duel-card {
+      position: relative;
+      padding: 32px 22px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: transform var(--transition), border-color var(--transition), background var(--transition);
+      cursor: pointer;
+      min-height: 320px;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+    }
+    .duel-card:hover { transform: translateY(-6px); border-color: var(--accent-blue); background: var(--bg-card-hover); }
+    .duel-card.locked { cursor: default; }
+    .duel-card.locked:hover { transform: none; }
+
+    .duel-card .flag { font-size: 3rem; line-height: 1; margin-bottom: 12px; }
+    .duel-card .pname { font-family: var(--font-main); font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; }
+    .duel-card .club  { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 4px; }
+    .duel-card .meta  { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 18px; }
+
+    .vs-badge {
+      display: flex; align-items: center; justify-content: center;
+      width: 56px; height: 56px;
+      align-self: center;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      font-family: var(--font-main);
+      font-weight: 900;
+      color: var(--accent-blue);
+    }
+
+    .value-block {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .value-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .value-amt { font-family: var(--font-main); font-weight: 900; font-size: 1.7rem; color: var(--accent-blue); }
+
+    .pick-buttons {
+      display: flex; gap: 8px; justify-content: center;
+      margin-top: 18px;
+    }
+    .pick-btn {
+      flex: 1;
+      max-width: 130px;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-family: var(--font-main); font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .pick-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: var(--bg-elev); }
+
+    .verdict {
+      display: none;
+      text-align: center;
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-main);
+      font-weight: 800;
+    }
+    .verdict.right { background: var(--bg-win); color: var(--accent-green); border: 1px solid #b4dcbc; }
+    .verdict.wrong { background: var(--bg-lose); color: var(--accent-red);   border: 1px solid #f0b8b8; }
+
+    .end-overlay {
+      display: none;
+      text-align: center;
+      padding: 36px 24px;
+      background: #fef5f5;
+      border: 1px solid var(--accent-red);
+      border-radius: var(--radius-lg);
+      margin-top: 30px;
+    }
+    .end-overlay h2 { color: var(--accent-red); margin-bottom: 8px; font-size: 1.8rem; }
+
+    @media (max-width: 720px) {
+      .duel { grid-template-columns: 1fr; gap: 8px; }
+      .vs-badge { margin: 4px auto; }
+      .duel-card { min-height: auto; padding: 24px 18px; }
+      .duel-card .pname { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar" id="navbar">
+  <div class="container navbar__inner">
+    <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt="Furbol"/>Furbol</a>
+    <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">? Volver</a>
+  </div>
+</header>
+
+<main class="game-page">
+  <div class="container higher-area">
+
+    <div class="game-header">
+      <div class="section__eyebrow">?? Juego #2</div>
+      <h1 class="game-header__title">¿Quién vale más?</h1>
+      <p class="game-header__sub">Elige al jugador con mayor valor de mercado. 3 vidas. Mantén la racha.</p>
+    </div>
+
+    <div class="score-bar">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <div class="chip">Racha: <strong id="chip-streak">0</strong></div>
+        <div class="chip">Mejor: <strong id="chip-best">0</strong></div>
+      </div>
+      <div class="lives" id="lives-row">
+        <span class="life">??</span>
+        <span class="life">??</span>
+        <span class="life">??</span>
+      </div>
+    </div>
+
+    <div class="duel" id="duel">
+      <!-- Cards inyectadas por JS -->
+    </div>
+
+    <div class="verdict" id="verdict"></div>
+
+    <div class="end-overlay" id="end-overlay">
+      <h2>¡Game Over! ??</h2>
+      <p id="end-summary" style="color:var(--text-secondary); margin-bottom:18px;"></p>
+      <button class="btn btn--primary" onclick="startGame()">Volver a jugar</button>
+    </div>
+
+  </div>
+</main>
+
+<style>
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);
+  }
+  .chip strong { color: var(--text-primary); font-weight: 800; }
+</style>
+
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/album.js"></script>
+<script src="../js/games/mas-caro.js"></script>
+
+</body>
+</html>
+

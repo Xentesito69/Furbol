@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Versus — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .vs-area { max-width: 620px; margin: 0 auto; }
+  .turn-banner {
+    padding: 14px; border-radius: var(--radius-md); margin-bottom: 14px;
+    text-align: center; font-family: var(--font-main); font-weight: 800; font-size: 1.1rem;
+  }
+  .turn-banner.p1 { background: var(--bg-elev); color:var(--accent-blue-2); border: 1px solid var(--border-accent); }
+  .turn-banner.p2 { background:#fff5d9; color:#a06a00; border: 1px solid #f1d693; }
+  .scoreboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .score-card { background: var(--surface); border:1.5px solid var(--border); border-radius:var(--radius-md); padding:14px; text-align:center; box-shadow:var(--shadow-card); }
+  .score-card.active.p1 { border-color: var(--accent-blue); }
+  .score-card.active.p2 { border-color: var(--accent-gold); }
+  .score-card .pname { font-family:var(--font-main); font-weight:800; font-size:1rem; }
+  .score-card .score { font-family:var(--font-main); font-weight:900; font-size:2rem; color:var(--accent-blue); }
+  .score-card.p2 .score { color:#a06a00; }
+  .question-card {
+    background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card); padding:20px; margin-bottom:14px; text-align:center;
+  }
+  .question { font-family:var(--font-main); font-weight:800; font-size:1.15rem; margin-bottom:8px; }
+  .q-photo { width:90px; height:90px; border-radius:50%; object-fit:cover; border:2px solid var(--border-accent); margin-bottom:10px; }
+  .setup { background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; text-align:center; box-shadow:var(--shadow-card); }
+  .name-input { padding:10px 14px; border:1px solid var(--border); border-radius:var(--radius-md); font-size:1rem; width:200px; margin:6px 4px; }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container vs-area">
+  <div class="game-header">
+    <div class="section__eyebrow">⚔️ Versus</div>
+    <h1 class="game-header__title">1 vs 1 local</h1>
+    <p class="game-header__sub">Mismo dispositivo, turnos alternados, 10 preguntas cada uno.</p>
+  </div>
+
+  <div class="setup" id="setup">
+    <h3 style="font-family:var(--font-main); margin-bottom:14px;">Nombres de los jugadores</h3>
+    <input class="name-input" id="n1" placeholder="Jugador 1" value="Jugador 1"/>
+    <span style="color:var(--text-muted); font-weight:700;">VS</span>
+    <input class="name-input" id="n2" placeholder="Jugador 2" value="Jugador 2"/>
+    <div><button class="btn btn--primary" id="btn-start" style="margin-top:14px;">▶ Empezar</button></div>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="turn-banner" id="banner"></div>
+    <div class="scoreboard" id="board"></div>
+    <div class="chip-row"><div class="chip">Ronda: <strong id="chip-round">1/10</strong></div></div>
+    <div class="question-card" id="qcard"></div>
+    <div class="mc-grid" id="options"></div>
+    <div class="verdict" id="verdict"></div>
+    <div class="end-overlay-common" id="end"></div>
+  </div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/versus.js"></script>
+</body></html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bandera → Jugador — Furbol</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .flag-area { max-width: 720px; margin: 0 auto; }
+
+    .flag-hero {
+      text-align: center;
+      padding: 28px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 16px;
+    }
+    .flag-hero .big-flag {
+      font-size: 5.5rem;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .flag-hero .country {
+      font-family: var(--font-main);
+      font-weight: 800;
+      font-size: 1.6rem;
+    }
+    .flag-hero .timer {
+      margin-top: 14px;
+      font-family: var(--font-main); font-weight: 800;
+      font-size: 1.4rem; color: var(--accent-green);
+    }
+    .timer.warning { color: var(--accent-gold); }
+    .timer.danger  { color: #ff5050; animation: pulse 0.8s infinite; }
+    @keyframes pulse { 50% { opacity: 0.4; } }
+
+    .input-row {
+      display: flex; gap: 8px;
+      margin-bottom: 16px;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 1rem;
+    .input-row input:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(25,118,210,0.15); }
+    
+    .search-wrapper { position: relative; flex: 1; }
+    .search-wrapper input { width: 100%; box-sizing: border-box; }
+    .suggestions-box {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: var(--surface); border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      box-shadow: var(--shadow-card);
+      max-height: 200px; overflow-y: auto; z-index: 10;
+      display: none; text-align: left;
+    }
+    .sug { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; border-bottom: 1px solid var(--bg-elev); }
+    .sug:last-child { border-bottom: none; }
+    .sug:hover { background: var(--bg-elev); }
+
+    .found-list {
+      display: flex; flex-direction: column; gap: 6px;
+      max-height: 360px; overflow-y: auto;
+    }
+    .found-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px;
+      background: var(--bg-win);
+      border: 1px solid #b4dcbc;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      animation: rowIn 0.3s ease;
+    }
+    @keyframes rowIn { from{opacity:0; transform:translateY(-4px);} to{opacity:1;} }
+    .found-item .pmeta { font-size: 0.75rem; color: var(--text-secondary); }
+
+    .score-line {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+    }
+    .score-line strong { color: var(--accent-green); font-family: var(--font-main); }
+
+    .end-overlay {
+      display: none;
+      padding: 28px;
+      border-radius: var(--radius-lg);
+      text-align: center;
+      margin-top: 20px;
+      background: var(--bg-elev);
+      border: 1px solid var(--accent-blue);
+      box-shadow: var(--shadow-card);
+    }
+    .end-overlay h2 { color: var(--accent-blue); margin-bottom: 8px; }
+    .missed-list {
+      text-align: left;
+      margin-top: 16px;
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 12px;
+      background: var(--bg-elev);
+      border-radius: var(--radius-md);
+    }
+    .missed-item { padding: 4px 0; font-size: 0.85rem; color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+
+<header class="navbar" id="navbar">
+  <div class="container navbar__inner">
+    <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt="Furbol"/>Furbol</a>
+    <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+  </div>
+</header>
+
+<main class="game-page">
+  <div class="container flag-area">
+
+    <div class="game-header">
+      <div class="section__eyebrow">🏳️ Juego #4</div>
+      <h1 class="game-header__title">Bandera → Jugador</h1>
+      <p class="game-header__sub">60 segundos para nombrar a todos los jugadores que puedas.</p>
+    </div>
+
+    <div class="flag-hero" id="flag-hero">
+      <div class="big-flag" id="big-flag">🏳️</div>
+      <div class="country" id="country-name">—</div>
+      <div class="timer" id="timer">60</div>
+    </div>
+
+    <div class="score-line">
+      <div>Encontrados: <strong id="found-count">0</strong> / <span id="total-count">0</span></div>
+      <button class="btn btn--outline" id="btn-skip" style="padding:6px 12px; font-size:0.8rem;">Cambiar país</button>
+    </div>
+
+    <div class="input-row">
+      <div class="search-wrapper">
+        <input type="text" id="player-input" placeholder="Escribe un apellido…" autocomplete="off">
+        <div class="suggestions-box" id="sug-box"></div>
+      </div>
+    </div>
+
+    <div class="found-list" id="found-list"></div>
+
+    <div class="end-overlay" id="end-overlay">
+      <h2 id="end-title">¡Tiempo!</h2>
+      <p id="end-summary" style="color:var(--text-secondary); margin-bottom:10px;"></p>
+      <div class="missed-list" id="missed-list"></div>
+      <button class="btn btn--primary" style="margin-top:16px;" onclick="initFlagGame()">↻ Nuevo país</button>
+    </div>
+
+  </div>
+</main>
+
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+  <script src="../js/album.js"></script>
+<script src="../js/games/bandera.js"></script>
+
+</body>
+</html>

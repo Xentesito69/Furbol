@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>4 Clubes en Común — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .cc-area { max-width: 760px; margin: 0 auto; }
+  .quad { display:grid; grid-template-columns: repeat(2,1fr); gap:10px; margin-bottom:18px; }
+  @media (min-width:600px) { .quad { grid-template-columns: repeat(4,1fr); } }
+  .quad .player-tile img.photo { width: 64px; height: 64px; }
+  .search-box { display:flex; gap:8px; position:relative; }
+  .search-input { flex:1; padding:14px 16px; border-radius:var(--radius-md); background: var(--surface); border:1px solid var(--border); font-size:1rem; }
+  .search-input:focus { outline:none; border-color:var(--accent-blue); box-shadow:0 0 0 3px rgba(25,118,210,0.15); }
+  .suggestions { position:absolute; top:100%; left:0; right:0; margin-top:6px; background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); max-height:240px; overflow-y:auto; z-index:30; display:none; box-shadow:var(--shadow-card); }
+  .sug { padding:10px 14px; cursor:pointer; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); font-size:0.85rem; }
+  .sug:hover { background: var(--bg-elev); }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container cc-area">
+  <div class="game-header">
+    <div class="section__eyebrow">👥 Club en común</div>
+    <h1 class="game-header__title">¿Quién pasó por el club de los 4?</h1>
+    <p class="game-header__sub">Estos 4 jugadores pasaron en algún momento por el mismo club que un mismo jugador. Adivínalo.</p>
+    <p class="game-header__sub" style="font-size:0.78rem; color:var(--text-secondary); margin-top:6px;">⚠️ No tiene por qué haber jugado a la vez que ellos.</p>
+  </div>
+  <div class="chip-row">
+    <div class="chip">Aciertos: <strong id="chip-wins">0</strong></div>
+    <div class="chip">Racha: <strong id="chip-streak">0</strong></div>
+  </div>
+  <div class="quad" id="quad"></div>
+  <div class="search-box">
+    <input type="text" id="cc-input" class="search-input" placeholder="Escribe un nombre…" autocomplete="off"/>
+    <button class="btn btn--primary" id="btn-guess">Adivinar</button>
+    <div class="suggestions" id="sug-box"></div>
+  </div>
+  <div style="margin-top:10px; text-align:center;">
+    <button class="btn btn--outline" id="btn-skip" style="padding:6px 14px; font-size:0.85rem;">Saltar</button>
+  </div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+  <script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/4-companeros.js"></script>
+</body></html>

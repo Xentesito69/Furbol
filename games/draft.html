@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Draft — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .dr-area { max-width: 760px; margin: 0 auto; }
+  .duel { display:grid; grid-template-columns: 1fr auto 1fr; gap:12px; align-items:stretch; margin-bottom:18px; }
+  .duel-card { background: var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg); padding:18px; text-align:center; cursor:pointer; transition:all 0.18s; box-shadow:var(--shadow-card); }
+  .duel-card:hover { border-color:var(--accent-blue); transform:translateY(-3px); }
+  .duel-card img.photo { width:72px; height:72px; border-radius:50%; object-fit:cover; border:2px solid var(--border-accent); margin-bottom:8px; }
+  .duel-card .pname { font-family:var(--font-main); font-weight:800; font-size:1.1rem; }
+  .duel-card .pmeta { color:var(--text-secondary); font-size:0.78rem; margin:3px 0; }
+  .duel-card .val { font-family:var(--font-main); color:var(--accent-blue); font-weight:800; margin-top:6px; }
+  .vs-badge { align-self:center; width:48px; height:48px; border-radius:50%; background: var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:var(--font-main); font-weight:900; color:var(--accent-blue); box-shadow:var(--shadow-card); }
+  .picked { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:6px; margin-bottom:12px; }
+  .picked-tile { background: var(--bg-elev); border:1px solid var(--border-accent); border-radius:var(--radius-sm); padding:6px; text-align:center; font-size:0.7rem; }
+  .picked-tile img { width:32px; height:32px; border-radius:50%; object-fit:cover; }
+  @media (max-width:600px){ .duel{grid-template-columns:1fr; } .vs-badge{margin:6px auto;} }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container dr-area">
+  <div class="game-header">
+    <div class="section__eyebrow">🪙 Draft</div>
+    <h1 class="game-header__title">Elige uno de cada par</h1>
+    <p class="game-header__sub">11 rondas. En cada una, escoge al mejor de los dos.</p>
+  </div>
+  <div class="chip-row">
+    <div class="chip">Ronda: <strong id="chip-round">1/11</strong></div>
+    <div class="chip">Valor del XI: <strong id="chip-value">—</strong></div>
+  </div>
+  <div class="picked" id="picked"></div>
+  <div class="duel" id="duel"></div>
+  <div class="end-overlay-common" id="end"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/draft.js"></script>
+</body></html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Álbum de Cromos · Furbol</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    :root { --gold: #f5c842; --gold2: #e0a800; --pack-bg: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); --bg: var(--bg-primary, var(--bg-elev)); --surface: var(--bg-card, #ffffff); --text: var(--text-primary, #0d1b2a); }
+
+    body { background: var(--bg); color: var(--text); font-family: var(--font-main); min-height: 100vh; }
+
+    .album-header { text-align:center; padding: 32px 16px 16px; }
+    .album-header h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--gold), #ff9800); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; margin-bottom: 6px; }
+    .album-header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+    /* Progress bar */
+    .progress-wrap { max-width: 600px; margin: 0 auto 28px; padding: 0 16px; }
+    .progress-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:0.88rem; color:var(--text-secondary); }
+    .progress-top strong { color:var(--text); font-size:1rem; }
+    .progress-bar { height: 12px; background: var(--border); border-radius: 8px; overflow:hidden; }
+    .progress-fill { height:100%; background: linear-gradient(90deg, var(--gold2), var(--gold)); border-radius: 8px; transition: width 0.6s ease; }
+
+    /* Pack zone */
+    .pack-zone { display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; padding: 0 16px 28px; }
+    .pack-btn { position:relative; display:inline-flex; align-items:center; justify-content:center; width:max-content; height:max-content; border:none; cursor:pointer; background:transparent; transition: transform 0.2s; padding:0; outline:none; margin:0 auto; }
+    .pack-btn:hover { transform: translateY(-6px) rotate(-1deg); }
+    .pack-btn:hover img.pack-img { filter:drop-shadow(0 16px 32px rgba(245,200,66,0.5)); }
+    .pack-btn img.pack-img { display:block; height:320px; width:auto; border-radius:14px; filter:drop-shadow(0 8px 24px rgba(0,0,0,0.3)); transition:filter 0.2s; }
+    .pack-badge { position:absolute; top:20px; left:50%; transform:translateX(-50%); background:var(--accent-red,#e74c3c); color:#fff; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:1.15rem; border: 3px solid var(--bg); z-index:2; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .pack-btn:disabled { opacity:0.35; cursor:not-allowed; transform:none; filter:grayscale(1); }
+
+    /* Pack open overlay */
+    .pack-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+    .pack-overlay.open { opacity:1; pointer-events:all; }
+    .pack-overlay h2 { color: var(--gold); font-size:2rem; font-weight:800; text-shadow: 0 0 20px rgba(245,200,66,0.6); }
+    .pack-cards { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; min-height:180px; align-items:center; }
+    .pack-reveal-wrapper { width:130px; transform:scale(0) translateY(50px); opacity:0; transition:all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); position:relative; }
+    .pack-reveal-wrapper.reveal { transform:scale(1) translateY(0); opacity:1; }
+    .pack-reveal-wrapper .card-badge { position:absolute; top:-10px; right:-10px; background:var(--gold); color:#000; border-radius:8px; font-size:0.75rem; font-weight:800; padding:4px 8px; z-index:10; box-shadow:0 4px 10px rgba(0,0,0,0.4); border:2px solid var(--surface); }
+    .pack-close { background:var(--gold); color:#000; border:none; border-radius:10px; padding:10px 32px; font-size:1rem; font-weight:800; cursor:pointer; font-family:var(--font-main); }
+
+    /* Filter tabs */
+    .filter-tabs { display:flex; gap:8px; justify-content:center; padding:0 16px 16px; flex-wrap:wrap; }
+    .tab-btn { padding:6px 16px; border-radius:20px; border: 1.5px solid var(--border); background:var(--surface); color:var(--text-secondary); font-size:0.82rem; cursor:pointer; font-family:var(--font-main); transition:all 0.2s; }
+    .tab-btn.active { background:var(--gold); color:#000; border-color:var(--gold); font-weight:700; }
+
+    /* Main Tabs */
+    .main-tabs { display:flex; margin:0 auto 24px; max-width:400px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:4px; }
+    .main-tab { flex:1; padding:8px 0; border:none; background:transparent; border-radius:8px; cursor:pointer; font-weight:700; font-family:var(--font-main); color:var(--text-secondary); transition:all 0.2s; }
+    .main-tab.active { background:var(--gold); color:#000; }
+    .view-section { display:none; }
+    .view-section.active { display:block; }
+
+    /* Album grid */
+    .album-section { max-width:900px; margin:0 auto; padding:0 16px 60px; }
+    .album-group { margin-bottom:28px; }
+    .album-group-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; padding:8px 12px; background:var(--surface); border-radius:10px; border:1px solid var(--border); }
+    .group-crest { width:28px; height:28px; object-fit:contain; }
+    .group-name { font-weight:700; font-size:0.95rem; flex:1; }
+    .group-count { font-size:0.78rem; color:var(--text-secondary); }
+    .cards-row { display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap:10px; }
+
+    /* Individual cards */
+    .album-card { border-radius:12px; overflow:hidden; background:var(--surface); border:1.5px solid var(--border); transition: transform 0.15s, border-color 0.2s; position:relative; }
+    .album-card.owned { border-color: var(--gold2); box-shadow: 0 2px 12px rgba(224,168,0,0.2); }
+    .album-card:not(.owned) { opacity: 0.35; filter: grayscale(1); }
+    .album-card img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+    .album-card .ac-name { font-size:0.68rem; font-weight:700; text-align:center; padding:4px 4px 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .album-card .ac-count { position:absolute; bottom:22px; right:4px; background:var(--gold); color:#000; border-radius:50%; width:20px; height:20px; font-size:0.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:3; }
+    .ac-top-meta { position:absolute; top:4px; left:4px; display:flex; flex-direction:column; gap:4px; z-index:2; align-items:center; }
+    .ac-top-meta .ac-crest { width:22px; height:22px; object-fit:contain; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.8)); }
+    .ac-top-meta .ac-flag { width:16px; border-radius:2px; box-shadow:0 1px 2px rgba(0,0,0,0.8); }
+
+    /* Back button */
+    .back-btn { display:inline-flex; align-items:center; gap:6px; color:var(--text-secondary); text-decoration:none; font-size:0.88rem; padding:16px 16px 0; }
+    .back-btn:hover { color:var(--text); }
+  </style>
+</head>
+<body>
+  <a class="back-btn" href="../index.html">← Inicio</a>
+
+  <div class="album-header">
+    <h1>🃏 Álbum de Cromos</h1>
+    <p>Gana juegos para conseguir sobres · 3 cromos por sobre</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <span>Progreso del álbum</span>
+      <strong id="prog-text">0/0 (0%)</strong>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="main-tabs">
+    <button class="main-tab" id="mtab-sobres" onclick="switchMainTab('sobres')">🎴 Mis Sobres</button>
+    <button class="main-tab" id="mtab-album" onclick="switchMainTab('album')">📒 Mi Álbum</button>
+  </div>
+
+  <!-- SECCIÓN SOBRES -->
+  <div id="sec-sobres" class="view-section">
+    <div class="pack-zone">
+      <div>
+        <button class="pack-btn" id="btn-open-pack" onclick="openPack()">
+          <img src="../images/SobreFurbol.png" class="pack-img" alt="Abrir Sobre">
+          <span class="pack-badge" id="pack-count-badge">0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN ÁLBUM -->
+  <div id="sec-album" class="view-section">
+    <div class="filter-tabs">
+      <button class="tab-btn active" onclick="setView('club', this)">Por Equipo</button>
+      <button class="tab-btn" onclick="setView('nation', this)">Por País</button>
+      <button class="tab-btn" onclick="setView('league', this)">Por Liga</button>
+    </div>
+    <div class="album-section" id="album-section"></div>
+  </div>
+
+  <!-- Pack open overlay -->
+  <div class="pack-overlay" id="pack-overlay">
+    <h2>✨ ¡Nuevo sobre!</h2>
+    <div class="pack-cards" id="pack-cards-reveal"></div>
+    <button class="pack-close" onclick="closePack()">Continuar →</button>
+  </div>
+
+  <!-- Profile overlay -->
+  <div class="pack-overlay" id="profile-modal">
+  </div>
+
+  <script src="../data/players.js"></script>
+  <script src="../js/db.js"></script>
+  <script src="../js/games/_helpers.js"></script>
+  <script src="../js/album.js"></script>
+  <script>
+    let currentView = 'club';
+
+    function switchMainTab(tabId) {
+      document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById('mtab-' + tabId).classList.add('active');
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('sec-' + tabId).classList.add('active');
+      
+      // Update hash so refreshing keeps the view
+      window.location.hash = tabId;
+    }
+
+    async function init() {
+      await FutbolDB.load();
+      
+      // Determine starting tab
+      const hash = window.location.hash.replace('#', '') || 'sobres';
+      switchMainTab(hash === 'album' ? 'album' : 'sobres');
+
+      renderStats();
+      renderAlbum();
+    }
+
+    function renderStats() {
+      const s = FurbolAlbum.getStats();
+      document.getElementById('prog-text').textContent = `${s.obtained}/${s.total} (${s.pct}%)`;
+      document.getElementById('prog-fill').style.width = s.pct + '%';
+      const packs = FurbolAlbum.getPacks();
+      document.getElementById('pack-count-badge').textContent = packs;
+      const packLabelEl = document.getElementById('pack-label');
+      if (packLabelEl) packLabelEl.textContent = `${packs} sobre${packs===1?'':'s'} disponible${packs===1?'':'s'}`;
+      document.getElementById('btn-open-pack').disabled = packs < 1;
+    }
+
+    function setView(view, btn) {
+      currentView = view;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAlbum();
+    }
+
+    function renderAlbum() {
+      const section = document.getElementById('album-section');
+      const col = FurbolAlbum.getCollection();
+
+      // Build complete groups (include players without cards as silhouettes)
+      const all = FutbolDB.getAll().filter(p => FutbolDB.photoOf(p));
+
+      let html = '';
+      if (currentView === 'club') {
+        // Group all photoed players by club
+        const map = {};
+        all.forEach(p => {
+          if (!map[p.club]) map[p.club] = { club: p.club, clubId: p.clubId, league: p.league, players: [] };
+          map[p.club].players.push(p);
+        });
+        Object.values(map).sort((a,b) => a.league.localeCompare(b.league) || a.club.localeCompare(b.club)).forEach(g => {
+          const owned = g.players.filter(p => col[p.id] > 0).length;
+          const crestEl = getClubCrest(g.clubId);
+          html += `<div class="album-group">
+            <div class="album-group-header">
+              ${crestEl}
+              <span class="group-name">${g.club} <small style="color:var(--text-muted);font-weight:400;font-size:0.75rem;">${g.league}</small></span>
+              <span class="group-count">${owned}/${g.players.length}</span>
+            </div>
+            <div class="cards-row">${g.players.map(p => cardHtml(p, col)).join('')}</div>
+          </div>`;
+        });
+      } else if (currentView === 'nation') {
+        const map = {};
+        all.forEach(p => {
+          if (!map[p.nationality]) map[p.nationality] = [];
+          map[p.nationality].push(p);
+        });
+        Object.keys(map).sort().forEach(nat => {
+          const players = map[nat];
+          const owned = players.filter(p => col[p.id] > 0).length;
+          const flagUrl = FutbolDB.flagImg(nat, 40);
+          const flagHtml = flagUrl ? `<img src="${flagUrl}" style="height:20px; border-radius:2px; vertical-align:middle; box-shadow:0 1px 3px rgba(0,0,0,0.2);">` : (FutbolDB.flagOf(nat) || nat);
+          html += `<div class="album-group">
+            <div class="album-group-header">
+              <span style="font-size:1.3rem; display:flex; align-items:center; margin-right:6px;">${flagHtml}</span>
+              <span class="group-name">${nat}</span>
+              <span class="group-count">${owned}/${players.length}</span>
+            </div>
+            <div class="cards-row">${players.map(p => cardHtml(p, col)).join('')}</div>
+          </div>`;
+        });
+      } else if (currentView === 'league') {
+        const map = {};
+        all.forEach(p => {
+          if (!map[p.league]) map[p.league] = [];
+          map[p.league].push(p);
+        });
+        Object.keys(map).sort().forEach(league => {
+          const players = map[league];
+          const owned = players.filter(p => col[p.id] > 0).length;
+          const leagueLogo = FutbolDB.leagueLogo(league);
+          const leagueIcon = leagueLogo
+            ? `<img class="group-crest" src="${leagueLogo}" alt="" style="margin-right:6px;" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🏆',style:'font-size:1.3rem;margin-right:6px;'}))">`
+            : `<span style="font-size:1.3rem; margin-right:6px;">🏆</span>`;
+          html += `<div class="album-group">
+            <div class="album-group-header">
+              ${leagueIcon}
+              <span class="group-name">${league}</span>
+              <span class="group-count">${owned}/${players.length}</span>
+            </div>
+            <div class="cards-row">${players.map(p => cardHtml(p, col)).join('')}</div>
+          </div>`;
+        });
+      }
+
+      section.innerHTML = html || '<p style="text-align:center;color:var(--text-muted);padding:40px">¡Abre tu primer sobre!</p>';
+    }
+
+    function cardHtml(p, col) {
+      const count = col[p.id] || 0;
+      const owned = count > 0;
+      const aPhoto = FutbolDB.photoOf(p);
+      
+      const crestUrl = FutbolDB.crestOf(p);
+      const crestHtml = crestUrl ? `<img class="ac-crest" src="${crestUrl}" onerror="this.style.display='none'">` : '';
+      
+      const flagUrl = FutbolDB.flagImg(p.nationality, 20);
+      const flagHtml = flagUrl ? `<img class="ac-flag" src="${flagUrl}">` : `<span class="ac-flag" style="font-size:12px">${FutbolDB.flagOf(p.nationality)}</span>`;
+
+      return `<div class="album-card ${owned ? 'owned' : ''}" ${owned ? `onclick="showProfile('${p.id}')" style="cursor:pointer;"` : ''}>
+        <div class="ac-top-meta">
+          ${crestHtml}
+          ${flagHtml}
+        </div>
+        <img src="${aPhoto}" onerror="this.src='${FutbolDB.avatarOf(p)}'" alt="${p.name}" loading="lazy">
+        ${owned && count > 1 ? `<div class="ac-count">×${count}</div>` : ''}
+        <div class="ac-name">${p.name}</div>
+      </div>`;
+    }
+
+    function getClubCrest(clubId) {
+      const url = FutbolDB.crestOfClub(clubId);
+      if (url) return `<img class="group-crest" src="${url}" alt="" style="width:24px; height:24px; object-fit:contain; vertical-align:middle; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.2)); margin-right:6px;" onerror="this.style.display='none'">`;
+      return '<span style="font-size:1.2rem; margin-right:6px;">🏟️</span>';
+    }
+
+    function openPack() {
+      if (FurbolAlbum.getPacks() < 1) return;
+      const picks = FurbolAlbum.openPack();
+      if (!picks) return;
+
+      const container = document.getElementById('pack-cards-reveal');
+      container.innerHTML = '';
+      
+      picks.forEach((pick, i) => {
+        // Create mock collection object so cardHtml renders the card correctly
+        const col = {}; col[pick.player.id] = pick.count;
+        const html = cardHtml(pick.player, col);
+        
+        const badge = pick.isNew ? '<div class="card-badge">¡NUEVO!</div>' : `<div class="card-badge" style="background:var(--surface);color:var(--text-secondary);">Repetido</div>`;
+        
+        container.innerHTML += `
+          <div class="pack-reveal-wrapper" id="pack-card-${i}">
+            ${badge}
+            ${html}
+          </div>
+        `;
+      });
+
+      document.getElementById('pack-overlay').classList.add('open');
+
+      // Staggered reveal animation
+      picks.forEach((_, i) => {
+        setTimeout(() => {
+          document.getElementById(`pack-card-${i}`)?.classList.add('reveal');
+        }, 100 + i * 300);
+      });
+
+      renderStats();
+    }
+
+    function closePack() {
+      document.getElementById('pack-overlay').classList.remove('open');
+      renderAlbum();
+    }
+    window.closePack = closePack;
+
+    function showProfile(id) {
+      const p = FutbolDB.getAll().find(x => x.id === id);
+      if (!p) return;
+      const careerClubs = [p.club, ...(p.formerClubs||[])].slice(0,8);
+      
+      let html = `
+        <div style="background:var(--bg-card, #fff); border:1px solid var(--border); border-radius:16px; padding:28px; max-width:400px; width:90%; position:relative; color:var(--text-primary); text-align:center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+          <button onclick="closeProfile()" style="position:absolute; top:12px; right:14px; background:none; border:none; color:var(--text-muted); font-size:1.8rem; cursor:pointer; line-height:1;">&times;</button>
+          
+          <div style="margin-bottom:14px;">
+            <img src="${FutbolDB.photoOf(p)}" onerror="this.onerror=null;this.src='${FutbolDB.avatarOf(p)}'" style="width:130px; height:130px; border-radius:50%; object-fit:cover; border:4px solid var(--border-accent); background:var(--bg-elev); box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+          </div>
+          
+          <div style="font-size:1.5rem; font-family:var(--font-main); font-weight:900; margin-bottom:6px; color:var(--text-primary); line-height:1.2;">${p.name}</div>
+          <div style="color:var(--text-secondary); margin-bottom:20px; font-size:0.95rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px;">
+            <span style="display:inline-flex;align-items:center;gap:6px;">${FurbolUI.flag(p.nationality,22)} ${p.nationality}</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;">${FurbolUI.crest(p,22)} <span style="font-weight:700;">${p.club}</span></span>
+          </div>
+          
+          <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-bottom:20px;">
+            <div style="background:var(--bg-elev); padding:10px; border-radius:10px; border:1px solid var(--border);">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;">Posición</div>
+              <div style="font-weight:800; color:var(--accent-blue); font-size:1.05rem;">${p.position}</div>
+            </div>
+            <div style="background:var(--bg-elev); padding:10px; border-radius:10px; border:1px solid var(--border);">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;">Edad</div>
+              <div style="font-weight:800; color:var(--accent-blue); font-size:1.05rem;">${p.age} años</div>
+            </div>
+            <div style="background:var(--bg-elev); padding:10px; border-radius:10px; border:1px solid var(--border);">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;">Liga</div>
+              <div style="font-weight:800; color:var(--accent-blue); font-size:1.05rem;">${p.league}</div>
+            </div>
+            <div style="background:var(--bg-elev); padding:10px; border-radius:10px; border:1px solid var(--border);">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;">Valor</div>
+              <div style="font-weight:800; color:var(--accent-blue); font-size:1.05rem;">${FutbolDB.formatValue(p.marketValue)}</div>
+            </div>
+          </div>
+          
+          ${careerClubs.length > 1 ? `
+            <div style="background:var(--bg-elev); border:1px solid var(--border); border-radius:10px; padding:14px; text-align:left;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; font-weight:800;">Trayectoria</div>
+              <div style="font-size:0.9rem; color:var(--text-primary); line-height:1.4;">${careerClubs.join(' &rarr; ')}</div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      document.getElementById('profile-modal').innerHTML = html;
+      document.getElementById('profile-modal').classList.add('open');
+    }
+    window.showProfile = showProfile;
+
+    function closeProfile() {
+      document.getElementById('profile-modal').classList.remove('open');
+    }
+    window.closeProfile = closeProfile;
+
+    window.addEventListener('furbol:album:update', renderStats);
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

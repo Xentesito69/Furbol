@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sopa con pistas — Furbol</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+  .sopa-area { max-width: 920px; margin: 0 auto; }
+  .level-bar { display:flex; gap:8px; justify-content:center; margin-bottom:14px; flex-wrap:wrap; }
+  .level-btn { padding:8px 16px; border-radius:999px; background: var(--surface); border:1px solid var(--border); cursor:pointer; font-weight:700; font-size:0.85rem; color:var(--text-secondary); }
+  .level-btn.active { background:var(--accent-blue); color:#fff; border-color:var(--accent-blue-2); }
+  .layout { display:grid; grid-template-columns: 1fr; gap: 18px; }
+  @media (min-width: 800px) { .layout { grid-template-columns: 1fr 320px; } }
+  .sopa-grid { display:grid; gap:2px; background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:8px; box-shadow:var(--shadow-card); user-select:none; }
+  .sopa-cell {
+    aspect-ratio: 1;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg-elev); border-radius:3px;
+    font-family:var(--font-main); font-weight:800;
+    cursor:pointer;
+    color: var(--text-primary);
+  }
+  .sopa-cell.sel { background: var(--accent-blue); color:#fff; }
+  .sopa-cell.found { background: #2e7d32; color:#fff; }
+  .sopa-cell.missed { background: #c62828; color:#fff; }
+  .clues-panel { background: var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:12px; box-shadow:var(--shadow-card); max-height: 520px; overflow-y:auto; }
+  .clue-item {
+    display:flex; gap:10px; align-items:center; padding:8px;
+    border-bottom:1px solid var(--border);
+    font-size:0.83rem;
+  }
+  .clue-item:last-child { border-bottom: none; }
+  .clue-item.done { background:var(--bg-win); }
+  .clue-item.missed { background:var(--bg-lose); }
+  .clue-icon { width:34px; height:34px; border-radius:50%; background:var(--bg-elev); display:flex; align-items:center; justify-content:center; font-family:var(--font-main); font-weight:900; color:var(--text-muted); font-size:1.1rem; flex-shrink:0; }
+  .clue-text { flex: 1; line-height: 1.3; }
+</style>
+</head><body>
+<header class="navbar"><div class="container navbar__inner">
+  <a href="../index.html" class="navbar__logo"><img src="../images/LogoPrincipalFurbol.png" alt=""/>Furbol</a>
+  <a href="../index.html" class="btn btn--outline" style="padding:8px 16px; font-size:0.9rem;">← Volver</a>
+</div></header>
+<main class="game-page"><div class="container sopa-area">
+  <div class="game-header">
+    <div class="section__eyebrow">🔎 Sopa con Pistas</div>
+    <h1 class="game-header__title">Adivina + busca</h1>
+    <p class="game-header__sub">Identifica al jugador por la pista, luego encuentra su apellido en la cuadrícula.</p>
+  </div>
+  <div class="level-bar">
+    <button class="level-btn active" data-l="easy">Fácil · 10×10 · 6</button>
+    <button class="level-btn" data-l="medium">Medio · 13×13 · 8</button>
+    <button class="level-btn" data-l="hard">Difícil · 16×16 · 12</button>
+  </div>
+  <div class="chip-row">
+    <div class="chip">Encontrados: <strong id="chip-found">0</strong>/<span id="chip-total">6</span></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn--outline" id="btn-giveup" style="padding:6px 12px; font-size:0.8rem; color:var(--accent-red);">🏳️ Rendirse</button>
+      <button class="btn btn--outline" id="btn-new" style="padding:6px 12px; font-size:0.8rem;">↻ Nueva sopa</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div class="sopa-grid" id="grid"></div>
+    <div class="clues-panel" id="clues"></div>
+  </div>
+  <div class="end-overlay-common" id="end" style="margin-top:18px;"></div>
+</div></main>
+<script src="../data/players.js"></script>
+<script src="../js/db.js"></script>
+  <script src="../js/album.js"></script>
+<script src="../js/games/_helpers.js"></script>
+<script src="../js/games/sopa.js"></script>
+</body></html>
