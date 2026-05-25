@@ -13,6 +13,37 @@ function saveS(s) { FurbolUI.saveStats(KEY, s); }
 
 function clubsOf(p) { return new Set([p.club, ...(p.formerClubs || [])]); }
 
+function isGridSolvableUnique(cs, rs, allPlayers) {
+  const adj = Array.from({length: 9}, () => []);
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      const validPlayers = allPlayers.filter(p => rs[r].check(p) && cs[c].check(p));
+      if (validPlayers.length === 0) return false;
+      const cellIdx = r * 3 + c;
+      for (const p of validPlayers) {
+        adj[cellIdx].push(p.id);
+      }
+    }
+  }
+  const match = new Map();
+  function dfs(u, visited) {
+    for (const v of adj[u]) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        if (!match.has(v) || dfs(match.get(v), visited)) {
+          match.set(v, u);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  for (let i = 0; i < 9; i++) {
+    if (!dfs(i, new Set())) return false;
+  }
+  return true;
+}
+
 function seededShuffle(arr, rnd) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -23,7 +54,8 @@ function seededShuffle(arr, rnd) {
 }
 
 function pickConstraintsSeeded(rnd) {
-  const active = FutbolDB.getAll().filter(p => p.league !== 'Leyendas');
+  const allPlayers = FutbolDB.getAll();
+  const active = allPlayers.filter(p => p.league !== 'Leyendas');
 
   const allAttrsFlat = [];
   active.forEach(p => {
@@ -32,6 +64,15 @@ function pickConstraintsSeeded(rnd) {
     allAttrsFlat.push({ kind: 'league', label: p.league, check: x => x.league === p.league });
     if (p.formerClubs) p.formerClubs.forEach(c => allAttrsFlat.push({ kind: 'club', label: c, check: x => clubsOf(x).has(c) }));
   });
+
+  // Añadir la categoría One Club Man para que tenga probabilidad de salir
+  for(let i=0; i<30; i++) {
+    allAttrsFlat.push({
+      kind:'oneclub', 
+      label:'One Club Man', 
+      check: x => x.league === 'Leyendas' && x.formerClubs && x.formerClubs.length === 1
+    });
+  }
 
   const pickWeighted = () => allAttrsFlat[Math.floor(rnd() * allAttrsFlat.length)];
 
@@ -42,13 +83,35 @@ function pickConstraintsSeeded(rnd) {
     const labels = [...cs, ...rs].map(x => x.label);
     if (new Set(labels).size < 6) continue;
 
-    let ok = true;
-    outer: for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 3; c++) {
-        if (!active.some(p => rs[r].check(p) && cs[c].check(p))) { ok = false; break outer; }
+    // Evitar intersecciones aburridas: un club no puede cruzarse con su propia liga actual
+    let trivial = false;
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const kinds = [rs[r].kind, cs[c].kind];
+        if(kinds.includes('league') && kinds.includes('club')){
+          const cName = rs[r].kind === 'club' ? rs[r].label : cs[c].label;
+          const lName = rs[r].kind === 'league' ? rs[r].label : cs[c].label;
+          if(allPlayers.some(p => p.club === cName && p.league === lName)){ trivial = true; break; }
+        }
       }
+      if(trivial) break;
     }
-    if (ok) return { cols: cs, rows: rs };
+    if(trivial) continue;
+
+    // Validar rápidamente que al menos haya 1 jugador por celda
+    let ok = true;
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (!allPlayers.some(p => rs[r].check(p) && cs[c].check(p))) { ok = false; break; }
+      }
+      if(!ok) break;
+    }
+    if (!ok) continue;
+
+    // Validar que se puede resolver con 9 distintos
+    if(!isGridSolvableUnique(cs, rs, allPlayers)) continue;
+
+    return { cols: cs, rows: rs };
   }
 
   // Fallback
@@ -99,12 +162,12 @@ async function init() {
         showEndOverlay(true, 9);
       } else {
         // Gave up — re-fill empty cells with valid players
-        const active = FutbolDB.getAll().filter(p => p.league !== 'Leyendas');
+        const allPlayers = FutbolDB.getAll();
         const usedIds = new Set(board.flat().filter(Boolean).map(v => v.player.id));
         for (let r = 0; r < 3; r++) {
           for (let c = 0; c < 3; c++) {
             if (board[r][c]) continue;
-            const match = active.find(p => !usedIds.has(p.id) && rows[r].check(p) && cols[c].check(p));
+            const match = allPlayers.find(p => !usedIds.has(p.id) && rows[r].check(p) && cols[c].check(p));
             if (match) {
               board[r][c] = { player: match, who: -1, surrender: true };
               usedIds.add(match.id);
@@ -139,6 +202,7 @@ function logoForLeague(name) {
   return null;
 }
 function headerHTML(col) {
+  if (col.kind === 'oneclub') return `<div style="font-size:0.7rem;font-weight:800;line-height:1.2;text-align:center;">ONE CLUB<br>MAN</div>`;
   if (col.kind === 'club') {
     const cr = crestForName(col.label);
     return cr ? `<div style="display:flex;justify-content:center;align-items:center;">${cr}</div>` : `<div>${col.label}</div>`;
@@ -200,9 +264,41 @@ pickerInput.addEventListener('input', () => {
 function commitPicker(pid) {
   const p = FutbolDB.getAll().find(x => x.id === pid);
   if (!p || !openCell) return;
+
+  // 1. No repetir jugadores
+  if(board.flat().some(cell => cell && !cell.surrender && cell.player && cell.player.id === pid)) {
+    pickerInput.placeholder = 'Ya has usado a este jugador';
+    pickerInput.value=''; pickerList.innerHTML='';
+    return;
+  }
+
   const r = openCell.r, c = openCell.c;
   const ok = rows[r].check(p) && cols[c].check(p);
   if (ok) {
+    // 2. Comprobar si al usar este jugador bloqueamos otra celda que solo se puede resolver con él
+    const allPlayers = FutbolDB.getAll();
+    const usedIds = new Set(board.flat().filter(v => v && !v.surrender).map(v=>v.player.id));
+    usedIds.add(pid);
+    
+    let blocksOtherCell = false;
+    for(let i=0; i<3; i++){
+      for(let j=0; j<3; j++){
+        if(i===r && j===c) continue;
+        if(board[i][j] && !board[i][j].surrender) continue;
+        
+        // Verificamos si la celda i,j todavía tiene algún jugador válido
+        const hasValid = allPlayers.some(x => !usedIds.has(x.id) && rows[i].check(x) && cols[j].check(x));
+        if(!hasValid) { blocksOtherCell = true; break; }
+      }
+      if(blocksOtherCell) break;
+    }
+
+    if(blocksOtherCell) {
+      pickerInput.placeholder = '⚠ Mejor ponlo en otra casilla (es la única opción allí)';
+      pickerInput.value=''; pickerList.innerHTML='';
+      return;
+    }
+
     board[r][c] = { player: p, who: 0 };
     closePicker();
     persistProgress();

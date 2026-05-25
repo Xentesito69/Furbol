@@ -27,7 +27,7 @@ const FutbolDB = (() => {
     "Marruecos":"ma","Senegal":"sn","Nigeria":"ng","Ghana":"gh","Gambia":"gm","Egipto":"eg",
     "Camerún":"cm","Costa de Marfil":"ci","Argelia":"dz","Túnez":"tn","Mali":"ml",
     "Burkina Faso":"bf","Jamaica":"jm","Haití":"ht",
-    "Japón":"jp","Corea del Sur":"kr","Australia":"au","Irán":"ir","Arabia Saudita":"sa","Israel":"il",
+    "Japón":"jp","Corea del Sur":"kr","Australia":"au","Irán":"ir","Arabia Saudita":"sa","Israel":"il","Siria":"sy",
     "Armenia":"am","DR Congo":"cd","Gabón":"ga","Islandia":"is","Kosovo":"xk",
     "Nueva Zelanda":"nz","Republica Centroafricana":"cf","República Centroafricana":"cf",
     "Rusia":"ru","Venezuela":"ve",
@@ -50,7 +50,7 @@ const FutbolDB = (() => {
     "Marruecos":"🇲🇦","Senegal":"🇸🇳","Nigeria":"🇳🇬","Ghana":"🇬🇭","Gambia":"🇬🇲","Egipto":"🇪🇬",
     "Camerún":"🇨🇲","Costa de Marfil":"🇨🇮","Argelia":"🇩🇿","Túnez":"🇹🇳","Mali":"🇲🇱",
     "Burkina Faso":"🇧🇫","Jamaica":"🇯🇲","Haití":"🇭🇹",
-    "Japón":"🇯🇵","Corea del Sur":"🇰🇷","Australia":"🇦🇺","Irán":"🇮🇷","Arabia Saudita":"🇸🇦","Israel":"🇮🇱",
+    "Japón":"🇯🇵","Corea del Sur":"🇰🇷","Australia":"🇦🇺","Irán":"🇮🇷","Arabia Saudita":"🇸🇦","Israel":"🇮🇱","Siria":"🇸🇾",
     "Armenia":"🇦🇲","DR Congo":"🇨🇩","Gabón":"🇬🇦","Islandia":"🇮🇸","Kosovo":"🇽🇰",
     "Nueva Zelanda":"🇳🇿","Republica Centroafricana":"🇨🇫","República Centroafricana":"🇨🇫",
     "Rusia":"🇷🇺","Venezuela":"🇻🇪",
@@ -228,32 +228,3 @@ const FutbolDB = (() => {
 })();
 
 FutbolDB.load();
-
-// Global Theme Logic
-document.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('furbol.theme');
-  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
-
-  const btn = document.createElement('button');
-  btn.className = 'theme-toggle-btn';
-  btn.title = 'Alternar Modo Oscuro';
-  const updateIcon = () => {
-    btn.innerHTML = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
-  };
-  updateIcon();
-  
-  btn.addEventListener('click', () => {
-    if (document.documentElement.getAttribute('data-theme') === 'dark') {
-      document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('furbol.theme', 'light');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('furbol.theme', 'dark');
-    }
-    updateIcon();
-  });
-  
-  document.body.appendChild(btn);
-});
