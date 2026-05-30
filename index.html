@@ -187,10 +187,10 @@
   </div>
 </footer>
 
-<script src="data/players.js?v=4"></script>
-<script src="js/db.js?v=4"></script>
-<script src="js/album.js?v=4"></script>
-<script src="js/app.js?v=4"></script>
+<script src="data/players.js?v=6"></script>
+<script src="js/db.js?v=6"></script>
+<script src="js/album.js?v=6"></script>
+<script src="js/app.js?v=6"></script>
 <script>
   function switchTab(tab) {
     const isJuegos = tab === 'juegos';
@@ -203,22 +203,46 @@
   window.switchTab = switchTab;
 
   async function updateColeccionUI() {
-    if (!window.FurbolAlbum || !window.FutbolDB) return;
+    console.log('[Coleccion] updateColeccionUI called', {
+      hasFurbolAlbum: !!window.FurbolAlbum,
+      hasFutbolDB: !!window.FutbolDB,
+    });
+    if (!window.FurbolAlbum || !window.FutbolDB) {
+      console.warn('[Coleccion] Missing FurbolAlbum or FutbolDB, abort');
+      return;
+    }
+    // Ensure DB is loaded AND players are actually populated
     await FutbolDB.load();
+    // Retry hasta que getAll() devuelva jugadores (defensa contra race conditions)
+    let attempts = 0;
+    while (FutbolDB.getAll().length === 0 && attempts < 20) {
+      await new Promise(r => setTimeout(r, 50));
+      attempts++;
+    }
+    console.log('[Coleccion] After load: players =', FutbolDB.getAll().length, 'attempts =', attempts);
     try {
       const s = FurbolAlbum.getStats();
       const packs = FurbolAlbum.getPacks();
+      const colRaw = FurbolAlbum.getCollection();
+      console.log('[Coleccion] Stats:', s, 'Packs:', packs, 'Collection entries:', Object.keys(colRaw).length);
       const pct = s.pct;
       const circumference = 364; // 2*π*58 ≈ 364
 
-      document.getElementById('col-pct-num').textContent = pct + '%';
-      document.getElementById('col-fraction').textContent = `${s.obtained}/${s.total}`;
-      document.getElementById('tab-col-pct').textContent = pct + '%';
-      document.getElementById('col-combined-badge').textContent = `${s.obtained} jugador${s.obtained===1?'':'es'} · ${packs} sobre${packs===1?'':'s'}`;
+      const elPct = document.getElementById('col-pct-num');
+      const elFrac = document.getElementById('col-fraction');
+      const elTabPct = document.getElementById('tab-col-pct');
+      const elBadge = document.getElementById('col-combined-badge');
+      const elArc = document.getElementById('col-arc');
 
-      // Arc animation
-      const offset = circumference - (pct / 100) * circumference;
-      document.getElementById('col-arc').style.strokeDashoffset = offset;
+      if (elPct) elPct.textContent = pct + '%';
+      if (elFrac) elFrac.textContent = `${s.obtained}/${s.total}`;
+      if (elTabPct) elTabPct.textContent = pct + '%';
+      if (elBadge) elBadge.textContent = `${s.obtained} jugador${s.obtained===1?'':'es'} · ${packs} sobre${packs===1?'':'s'}`;
+      if (elArc) {
+        const offset = circumference - (pct / 100) * circumference;
+        elArc.style.strokeDashoffset = offset;
+      }
+      console.log('[Coleccion] UI updated', { pct, obtained: s.obtained, total: s.total, packs });
     } catch (err) {
       console.error('Error updating coleccion UI:', err);
     }
@@ -229,10 +253,56 @@
     updateColeccionUI();
   });
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    await FutbolDB.load();
-    await updateColeccionUI();
-  });
+  // Fallback inmediato leyendo directamente de localStorage (sin depender de módulos)
+  function _quickColeccionFromLocalStorage() {
+    try {
+      const colRaw = localStorage.getItem('furbol.album.collection');
+      const packsRaw = localStorage.getItem('furbol.album.packs');
+      const col = colRaw ? JSON.parse(colRaw) : {};
+      const packs = packsRaw ? JSON.parse(packsRaw) : 0;
+      const obtained = Object.keys(col).filter(id => col[id] > 0).length;
+      // Total = leemos directamente de PLAYERS_DATA si está
+      let total = 0;
+      if (window.PLAYERS_DATA && Array.isArray(window.PLAYERS_DATA.players)) {
+        total = window.PLAYERS_DATA.players.length;
+      }
+      const pct = total ? Math.round(obtained / total * 100) : 0;
+      const elPct = document.getElementById('col-pct-num');
+      const elFrac = document.getElementById('col-fraction');
+      const elTabPct = document.getElementById('tab-col-pct');
+      const elBadge = document.getElementById('col-combined-badge');
+      const elArc = document.getElementById('col-arc');
+      if (elPct) elPct.textContent = pct + '%';
+      if (elFrac) elFrac.textContent = `${obtained}/${total}`;
+      if (elTabPct) elTabPct.textContent = pct + '%';
+      if (elBadge) elBadge.textContent = `${obtained} jugador${obtained===1?'':'es'} · ${packs} sobre${packs===1?'':'s'}`;
+      if (elArc) {
+        const circumference = 364;
+        const offset = circumference - (pct / 100) * circumference;
+        elArc.style.strokeDashoffset = offset;
+      }
+      console.log('[Coleccion] Quick update from localStorage:', { obtained, total, packs, pct });
+    } catch (e) { console.error('[Coleccion] Quick update error:', e); }
+  }
+
+  // Lanza la actualización en cuanto el DOM esté listo, y también de respaldo
+  // en window.load (por si los scripts diferidos terminan después).
+  function _kickColeccionUpdate() {
+    // Primero un quick render leyendo localStorage directamente
+    _quickColeccionFromLocalStorage();
+    // Luego intentamos el render completo con módulos
+    if (window.FurbolAlbum && window.FutbolDB) {
+      updateColeccionUI();
+    } else {
+      setTimeout(_kickColeccionUpdate, 50);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _kickColeccionUpdate);
+  } else {
+    _kickColeccionUpdate();
+  }
+  window.addEventListener('load', _kickColeccionUpdate);
 </script>
 </body>
 </html>
