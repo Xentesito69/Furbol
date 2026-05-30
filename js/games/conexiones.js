@@ -35,8 +35,7 @@ function pickCategories() {
   // Definir tipos de categoría con su agrupador
   const _clubIcon = (clubName) => {
     const sample = all.find(p => p.club === clubName);
-    if (!sample) return '⚽';
-    const url = FutbolDB.crestOf(sample);
+    const url = (sample && FutbolDB.crestOf(sample)) || (FutbolDB.crestByName && FutbolDB.crestByName(clubName)) || null;
     if (!url) return '⚽';
     return `<img src="${url}" onerror="this.onerror=null;this.outerHTML='⚽'" alt="" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;">`;
   };

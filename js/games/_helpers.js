@@ -13,6 +13,15 @@ const FurbolUI = {
     return `<span>${FutbolDB.clubEmojiOf(p)}</span>`;
   },
   crestUrl(p) { return FutbolDB.crestOf(p) || ''; },
+  /** Devuelve <img> de un escudo a partir del NOMBRE del club (busca primero por jugador actual, luego en clubs[]). */
+  crestByName(clubName, size = 22) {
+    let url = null;
+    const sample = FutbolDB.getAll().find(p => p.club === clubName);
+    if (sample) url = FutbolDB.crestOf(sample);
+    if (!url && FutbolDB.crestByName) url = FutbolDB.crestByName(clubName);
+    if (url) return `<img src="${url}" onerror="this.onerror=null;this.style.display='none'" alt="" style="width:${size}px;height:${size}px;object-fit:contain;vertical-align:middle;">`;
+    return `<span>⚽</span>`;
+  },
   photo(p, size = 40) {
     return `<img class="photo" src="${FutbolDB.photoOf(p)}" onerror="this.onerror=null;this.src='${FutbolDB.avatarOf(p)}'" alt="${p.name}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;flex-shrink:0;">`;
   },

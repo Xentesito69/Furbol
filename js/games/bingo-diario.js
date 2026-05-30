@@ -179,7 +179,7 @@ function reqVisual(c){
   }
   if(c.kind==='club'){
     const sample = FutbolDB.getAll().find(p => p.club === c.label);
-    const crestUrl = sample ? FutbolDB.crestOf(sample) : null;
+    const crestUrl = (sample && FutbolDB.crestOf(sample)) || (FutbolDB.crestByName && FutbolDB.crestByName(c.label)) || null;
     const visual = crestUrl
       ? `<img src="${crestUrl}" onerror="this.onerror=null;this.style.display='none'" style="width:32px;height:32px;object-fit:contain;">`
       : `<span style="font-size:1.4rem;">${c.icon}</span>`;

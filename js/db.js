@@ -180,6 +180,17 @@ const FutbolDB = (() => {
   }
 
   function getClub(id)         { return _clubs[id] || null; }
+  function clubByName(name) {
+    if (!name) return null;
+    for (const id in _clubs) {
+      if (_clubs[id] && _clubs[id].name === name) return _clubs[id];
+    }
+    return null;
+  }
+  function crestByName(name) {
+    const c = clubByName(name);
+    return c ? (c.crest || null) : null;
+  }
   function getLeagues()        { return [...new Set(_players.map(p => p.league))].sort(); }
 
   /** Datos de una liga (incluye logo). Devuelve null si no se conoce. */
@@ -219,7 +230,7 @@ const FutbolDB = (() => {
 
   return {
     load, getAll, query, random, randomN,
-    getClub, getLeagues, getLeagueInfo, leagueLogo, getNationalities, getClubs, getPositions,
+    getClub, clubByName, crestByName, getLeagues, getLeagueInfo, leagueLogo, getNationalities, getClubs, getPositions,
     getStats, getTeammates, sharedClub,
     flagOf, flagImg, clubEmojiOf, crestOf, crestOfClub, photoOf, avatarOf, soccerwikiPhoto,
     formatValue,

@@ -83,7 +83,7 @@ function renderList() {
   listEl.innerHTML = current.map((club, i) => {
     // Buscar un club en BD para usar su crest
     const sample = FutbolDB.getAll().find(x => x.club === club);
-    const crestUrl = sample ? FutbolDB.crestOf(sample) : null;
+    const crestUrl = (sample && FutbolDB.crestOf(sample)) || (FutbolDB.crestByName && FutbolDB.crestByName(club)) || null;
     const crest = crestUrl ? `<img src="${crestUrl}" style="width:22px;height:22px;object-fit:contain;">` : `<span style="font-size:1.2rem;">⚽</span>`;
     return `
       <div class="club-pill" draggable="true" data-idx="${i}">

@@ -141,6 +141,8 @@ function updateTurnInfo(){
 function crestForName(name){
   const sample = FutbolDB.getAll().find(p=>p.club===name);
   if(sample){ const u=FutbolDB.crestOf(sample); if(u) return `<img class="crest" src="${u}" onerror="this.onerror=null;this.style.display='none'" style="width:36px;height:36px;object-fit:contain;">`; }
+  const u2 = FutbolDB.crestByName ? FutbolDB.crestByName(name) : null;
+  if(u2) return `<img class="crest" src="${u2}" onerror="this.onerror=null;this.style.display='none'" style="width:36px;height:36px;object-fit:contain;">`;
   return null;
 }
 function flagForNat(nat){ return FurbolUI.flag(nat, 36); }

@@ -33,7 +33,12 @@ function render(){
   optsEl.innerHTML = options.map((c,i)=>{
     // Crear un objeto fake para crestHTML
     const sample = FutbolDB.getAll().find(p=>p.club===c);
-    return `<button class="mc-option" data-idx="${i}">${sample?FurbolUI.crest(sample,28):'⚽'} ${c}</button>`;
+    let crestImg = sample ? FurbolUI.crest(sample,28) : null;
+    if (!crestImg && FutbolDB.crestByName) {
+      const url = FutbolDB.crestByName(c);
+      if (url) crestImg = `<img src="${url}" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;" onerror="this.onerror=null;this.style.display='none'">`;
+    }
+    return `<button class="mc-option" data-idx="${i}">${crestImg || '⚽'} ${c}</button>`;
   }).join('');
   optsEl.querySelectorAll('.mc-option').forEach(b=>b.addEventListener('click',()=>pick(parseInt(b.dataset.idx,10))));
 }

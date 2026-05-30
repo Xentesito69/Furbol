@@ -68,7 +68,7 @@ async function init(){
 function render(){
   careerEl.innerHTML = careerClubs.map((c,i)=>{
     const sample = FutbolDB.getAll().find(x=>x.club===c);
-    const crestUrl = sample ? FutbolDB.crestOf(sample) : null;
+    const crestUrl = (sample && FutbolDB.crestOf(sample)) || (FutbolDB.crestByName && FutbolDB.crestByName(c)) || null;
     const crest = crestUrl ? `<img class="crest-mini" src="${crestUrl}" onerror="this.onerror=null;this.style.display='none'">` : '⚽';
     const isLast = i===careerClubs.length-1;
     return `<div class="career-item">${i+1}. ${crest} <span>${c}</span>${isLast?' <span style="color:var(--accent-blue);font-size:0.78rem;margin-left:auto;">actual</span>':''}</div>`;
